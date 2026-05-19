@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import {
   FiDollarSign, FiTrash2, FiPlusCircle, FiMinus, FiPlus,
   FiSmartphone, FiAlertCircle, FiCheckCircle,
-  FiRefreshCw, FiUser
+  FiRefreshCw, FiUser, FiSearch
 } from 'react-icons/fi';
 import { VentasService, Venta } from '@/service/ventas';
 import { ProductosService } from '@/service/productos';
@@ -50,6 +50,7 @@ export default function VentasView() {
 
   // Catalog state
   const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Cart state
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -177,7 +178,8 @@ export default function VentasView() {
 
   // ─── Filtered products ───────────────────────────────────────────
   const categories = ['all', ...Array.from(new Set(productsList.map(p => p.category)))];
-  const filtered = activeCategory === 'all' ? productsList : productsList.filter(p => p.category === activeCategory);
+  const filtered = (activeCategory === 'all' ? productsList : productsList.filter(p => p.category === activeCategory))
+    .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   // ─── Render ──────────────────────────────────────────────────────
   return (
@@ -209,6 +211,18 @@ export default function VentasView() {
         >
           <FiRefreshCw size={14} /> Recargar
         </button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl border-2 border-[#FF6701]/15 bg-white/70 dark:bg-slate-700/50 w-full">
+        <FiSearch className="text-lg text-[#FF6701] flex-shrink-0" />
+        <input
+          type="text"
+          placeholder="Buscar productos..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="bg-transparent outline-none w-full font-medium text-sm md:text-base text-slate-900 dark:text-white"
+        />
       </div>
 
       {/* Stats row */}

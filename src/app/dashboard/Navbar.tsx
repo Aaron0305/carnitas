@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { FiBell, FiMessageSquare, FiHelpCircle, FiSearch, FiChevronDown, FiMenu, FiX } from 'react-icons/fi';
+import { FiBell, FiMessageSquare, FiChevronDown, FiMenu, FiX, FiSettings } from 'react-icons/fi';
+import { GiTacos } from 'react-icons/gi';
 
 interface NavbarProps {
   userName?: string;
@@ -19,9 +20,6 @@ export default function Navbar({
   onMenuToggle,
   isSidebarOpen = false,
 }: NavbarProps) {
-  const [searchFocus, setSearchFocus] = useState(false);
-  const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
-
   const [userName, setUserName] = useState(propUserName || 'Juan Pérez');
   const [userInitials, setUserInitials] = useState(propUserInitials || 'JP');
 
@@ -54,104 +52,93 @@ export default function Navbar({
     }
   }, [propUserName]);
 
-
-
-  const iconVariants = {
-    idle: { scale: 1 },
-    hovered: {
-      scale: 1.08,
-      backgroundColor: '#FF6701',
-      color: 'white',
-      transition: { duration: 0.3 },
-    },
-  };
-
   const navIcons = [
     { id: 'notifications', icon: FiBell, title: 'Notificaciones' },
     { id: 'messages', icon: FiMessageSquare, title: 'Mensajes' },
-    { id: 'help', icon: FiHelpCircle, title: 'Ayuda' },
+    { id: 'settings', icon: FiSettings, title: 'Configuración' },
   ];
 
   return (
-    <nav
-      className="backdrop-blur px-4 md:px-8 py-4 shadow-lg flex justify-between items-center h-20 border-b bg-[#FCECDD]/90 border-[#FF6701]/15 dark:bg-slate-900/90 dark:border-slate-800/30"
-    >
-      {/* Hamburger Menu - Móvil */}
-      <motion.button
-        whileTap={{ scale: 0.95 }}
-        onClick={onMenuToggle}
-        className="md:hidden p-2 rounded-lg text-[#FF6701] hover:bg-[#FF6701]/10"
-      >
-        {isSidebarOpen ? <FiX className="text-2xl" /> : <FiMenu className="text-2xl" />}
-      </motion.button>
-
-      {/* Left Section - Search */}
-      <div className="flex items-center gap-3 md:gap-6 flex-1">
-        <motion.div
-          animate={{
-            boxShadow: searchFocus
-              ? '0 0 0 3px rgb(255 103 1 / 0.1)'
-              : '0 0 0 0px rgba(255, 103, 1, 0)',
-          }}
-          className={`flex items-center px-3 md:px-4 py-2 rounded-full w-full md:min-w-80 border-2 transition-all duration-300 bg-white/70 dark:bg-slate-700/50 ${
-            searchFocus ? 'border-[#FF6701]' : 'border-[#FF6701]/15 dark:border-slate-700/50'
-          }`}
-        >
-          <FiSearch className="mr-2 md:mr-3 text-lg md:text-xl text-[#FF6701] flex-shrink-0" />
-          <input
-            type="text"
-            placeholder="Buscar..."
-            onFocus={() => setSearchFocus(true)}
-            onBlur={() => setSearchFocus(false)}
-            className="bg-transparent outline-none w-full font-medium text-sm md:text-base text-slate-900 dark:text-white"
-          />
-        </motion.div>
-      </div>
-
-      {/* Right Section */}
-      <div className="flex items-center gap-3 md:gap-6">
-        {/* Icon Buttons */}
-        <div className="hidden sm:flex items-center gap-3">
-          {navIcons.map((item) => (
-            <motion.button
-              key={item.id}
-              variants={iconVariants}
-              initial="idle"
-              whileHover="hovered"
-              onMouseEnter={() => setHoveredIcon(item.id)}
-              onMouseLeave={() => setHoveredIcon(null)}
-              title={item.title}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-lg cursor-pointer transition-all duration-300 border border-[#FF6701]/15 bg-[#FCECDD]/70 dark:border-slate-700/50 dark:bg-slate-800/30"
+    <nav className="w-full backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border-b border-[#FF6701]/10 dark:border-slate-800/50">
+      <div className="px-4 md:px-8 py-3 flex items-center justify-between h-16">
+        
+        {/* Left Section: Logo + Menu Button */}
+        <div className="flex items-center gap-3 md:gap-4">
+          {/* Hamburger Button */}
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={onMenuToggle}
+            className="p-2.5 rounded-lg text-[#FF6701] hover:bg-[#FF6701]/10 transition-all duration-200 flex-shrink-0"
+          >
+            <motion.div
+              animate={{ rotate: isSidebarOpen ? 90 : 0 }}
+              transition={{ duration: 0.2 }}
             >
-              <item.icon className="text-xl" />
-            </motion.button>
-          ))}
-        </div>
+              {isSidebarOpen ? <FiX className="text-2xl" /> : <FiMenu className="text-2xl" />}
+            </motion.div>
+          </motion.button>
 
-        {/* Divider */}
-        <div className="hidden md:block h-8 w-px bg-[#FF6701]/15 dark:bg-slate-700/50" />
-
-        {/* User Profile - Info Estática */}
-        <div className="flex items-center gap-3">
-          {/* Avatar */}
-          <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md"
+          {/* Logo - Desktop Only */}
+          <div className="hidden md:flex items-center gap-2 text-white font-black text-lg" 
             style={{
               background: 'linear-gradient(135deg, #FF6701, #FFA82F)',
-            }}
-          >
-            {userInitials}
+              padding: '6px 12px',
+              borderRadius: '8px',
+            }}>
+            <GiTacos className="text-xl" />
+            <span>Carnitas</span>
+          </div>
+        </div>
+
+        {/* Center Section: Empty spacer for balance */}
+        <div className="flex-1" />
+
+        {/* Right Section: Icons + User */}
+        <div className="flex items-center gap-2 md:gap-4">
+          {/* Icon Buttons */}
+          <div className="flex items-center gap-1 md:gap-2">
+            {navIcons.map((item) => (
+              <motion.button
+                key={item.id}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                title={item.title}
+                className="p-2 md:p-2.5 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-[#FF6701]/10 hover:text-[#FF6701] transition-all duration-200"
+              >
+                <item.icon className="text-lg md:text-xl" />
+              </motion.button>
+            ))}
           </div>
 
-          {/* User Info */}
-          <div className="text-left hidden sm:block">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-              {userName}
-            </h3>
-            <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider bg-[#FF6701]/10 text-[#FF6701] dark:bg-slate-800/50 dark:text-slate-300">
-              Conectado
-            </span>
-          </div>
+          {/* Divider */}
+          <div className="h-6 w-px bg-[#FF6701]/15 dark:bg-slate-700/50 mx-1 md:mx-2" />
+
+          {/* User Profile */}
+          <motion.div 
+            whileHover={{ scale: 1.02 }}
+            className="flex items-center gap-2 md:gap-3 px-2 md:px-3 py-1.5 md:py-2 rounded-lg hover:bg-[#FF6701]/5 transition-all cursor-pointer"
+          >
+            {/* Avatar */}
+            <div
+              className="w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center text-white text-xs md:text-sm font-bold flex-shrink-0"
+              style={{
+                background: 'linear-gradient(135deg, #FF6701, #FFA82F)',
+              }}
+            >
+              {userInitials}
+            </div>
+
+            {/* User Info - Hidden on mobile */}
+            <div className="hidden sm:flex flex-col gap-0">
+              <p className="text-xs md:text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                {userName}
+              </p>
+              <p className="text-[10px] text-[#FF6701] font-semibold">En línea</p>
+            </div>
+
+            {/* Dropdown Arrow */}
+            <FiChevronDown className="hidden sm:block text-slate-400 text-sm md:text-base flex-shrink-0" />
+          </motion.div>
         </div>
       </div>
     </nav>

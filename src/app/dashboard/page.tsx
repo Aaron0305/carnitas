@@ -149,7 +149,11 @@ export default function Dashboard() {
       />
       <Sidebar activeMenu={activeMenu} onMenuChange={setActiveMenu} onLogout={handleLogout} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="relative z-10 flex-1 ml-0 md:ml-64 flex flex-col overflow-hidden">
+      <div
+        className={`relative z-10 flex-1 ml-0 flex flex-col overflow-hidden transition-[margin] duration-300 ${
+          sidebarOpen ? 'md:ml-64' : 'md:ml-0'
+        }`}
+      >
         <Navbar onLogout={handleLogout} onMenuToggle={() => setSidebarOpen(!sidebarOpen)} isSidebarOpen={sidebarOpen} />
         <main className="flex-1 overflow-y-auto p-3 md:p-4 lg:p-8 custom-scrollbar">
           <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
