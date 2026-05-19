@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { validateLogin } from '@/service/auth';
 import { motion } from 'framer-motion';
 
 export default function LoginPage() {
@@ -14,6 +15,11 @@ export default function LoginPage() {
 
   useEffect(() => {
     setMounted(true);
+    const savedEmail = localStorage.getItem('remembered_email');
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -37,10 +43,26 @@ export default function LoginPage() {
 
     setLoading(true);
 
-    setTimeout(() => {
-      window.location.href = '/dashboard';
+    try {
+      const res = await validateLogin(email, password);
+      if (res.success) {
+        if (rememberMe) {
+          localStorage.setItem('remembered_email', email);
+        } else {
+          localStorage.removeItem('remembered_email');
+        }
+        localStorage.setItem('user_email', email);
+        localStorage.setItem('user_name', res.user?.name || '');
+        localStorage.setItem('user_role', res.user?.role || 'user');
+        window.location.href = '/dashboard';
+      } else {
+        setError(res.error || 'Usuario o contraseña incorrectos');
+      }
+    } catch (err) {
+      setError('Error al conectar con el servidor de autenticación');
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   if (!mounted) return null;

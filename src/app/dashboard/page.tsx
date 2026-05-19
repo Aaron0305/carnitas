@@ -1,16 +1,21 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
+import ProductosView from './Productos/ProductosView';
+import VentasView from './Ventas/VentasView';
+import ReportesView from './Reportes/ReportesView';
+import RegistrosView from './Registros/RegistrosView';
+import { FiDollarSign, FiPackage, FiUsers, FiBarChart2, FiPlusCircle, FiArrowRight } from 'react-icons/fi';
 
 interface StatCard {
   id: string;
   label: string;
   value: string;
   detail: string;
-  icon: string;
+  icon: React.ComponentType<{ className?: string }>;
   trend: string;
   trendUp: boolean;
   accent: 'primary' | 'warning' | 'rose' | 'info';
@@ -28,20 +33,9 @@ interface Order {
 
 export default function Dashboard() {
   const [activeMenu, setActiveMenu] = useState('dashboard');
-  const [deviceTheme, setDeviceTheme] = useState<'light' | 'dark'>('light');
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const syncTheme = () => {
-      setDeviceTheme(mediaQuery.matches ? 'dark' : 'light');
-    };
-    syncTheme();
-    mediaQuery.addEventListener('change', syncTheme);
-    return () => mediaQuery.removeEventListener('change', syncTheme);
-  }, []);
 
   const handleLogout = () => {
-    // Lógica de logout
+    window.location.href = '/login';
   };
 
   const stats: StatCard[] = [
@@ -50,7 +44,7 @@ export default function Dashboard() {
       label: 'Total de Ventas',
       value: '$345,980',
       detail: 'Este mes',
-      icon: '💰',
+      icon: FiDollarSign,
       trend: '+12%',
       trendUp: true,
       accent: 'primary',
@@ -60,7 +54,7 @@ export default function Dashboard() {
       label: 'Pedidos Completados',
       value: '1,428',
       detail: 'Este mes',
-      icon: '📦',
+      icon: FiPackage,
       trend: '+8%',
       trendUp: true,
       accent: 'warning',
@@ -70,7 +64,7 @@ export default function Dashboard() {
       label: 'Clientes Activos',
       value: '582',
       detail: 'Registrados',
-      icon: '👥',
+      icon: FiUsers,
       trend: '-3%',
       trendUp: false,
       accent: 'rose',
@@ -80,7 +74,7 @@ export default function Dashboard() {
       label: 'Ingresos Totales',
       value: '$128,450',
       detail: 'Este trimestre',
-      icon: '📊',
+      icon: FiBarChart2,
       trend: '+15%',
       trendUp: true,
       accent: 'info',
@@ -113,14 +107,7 @@ export default function Dashboard() {
     },
   };
 
-  const container = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
-  };
-  const item = {
-    hidden:   { opacity: 0, y: 24 },
-    visible:  { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
-  };
+
 
   const Spark = ({ up }: { up: boolean }) => (
     <svg width="60" height="28" viewBox="0 0 60 28" fill="none">
@@ -140,13 +127,7 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="relative flex h-screen overflow-hidden"
-      style={{
-        background: deviceTheme === 'dark'
-          ? 'linear-gradient(135deg, rgb(15 23 42) 0%, rgb(15 23 42) 50%, rgb(30 41 59) 100%)'
-          : 'linear-gradient(135deg, rgb(252 236 221) 0%, rgb(252 236 221) 50%, rgb(255 245 240) 100%)',
-      }}
-    >
+    <div className="relative flex h-screen overflow-hidden bg-[linear-gradient(135deg,rgb(252,236,221)_0%,rgb(252,236,221)_50%,rgb(255,245,240)_100%)] dark:bg-[linear-gradient(135deg,rgb(15,23,42)_0%,rgb(15,23,42)_50%,rgb(30,41,59)_100%)]">
       <motion.div
         animate={{ x: [0, 40, 0], y: [0, 40, 0] }}
         transition={{ duration: 12, ease: 'easeInOut', repeat: Infinity }}
@@ -165,23 +146,20 @@ export default function Dashboard() {
         className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[34rem] h-[34rem] rounded-full blur-3xl"
         style={{ backgroundColor: 'rgb(255 103 1 / 0.1)' }}
       />
-      <Sidebar activeMenu={activeMenu} onMenuChange={setActiveMenu} />
+      <Sidebar activeMenu={activeMenu} onMenuChange={setActiveMenu} onLogout={handleLogout} />
 
       <div className="relative z-10 flex-1 ml-64 flex flex-col overflow-hidden">
-        <Navbar />
+        <Navbar onLogout={handleLogout} />
         <main className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
           <div className="max-w-7xl mx-auto space-y-8">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            {activeMenu === 'dashboard' && (
+              <>
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div>
-                <motion.h1 
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="text-4xl font-extrabold"
-                  style={{ color: deviceTheme === 'dark' ? 'white' : 'rgb(15 23 42)' }}
-                >
+                <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white">
                   Panel de <span style={{ color: '#FF6701', fontStyle: 'italic' }}>Control</span>
-                </motion.h1>
-                <p className="mt-2 flex items-center gap-2" style={{ color: deviceTheme === 'dark' ? 'rgb(148 163 184)' : 'rgb(100 116 139)' }}>
+                </h1>
+                <p className="mt-2 flex items-center gap-2 text-slate-500 dark:text-slate-400">
                   <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#FF6701' }} />
                   Bienvenido de nuevo. Aquí está el resumen de hoy.
                 </p>
@@ -197,29 +175,22 @@ export default function Dashboard() {
                   boxShadow: '0 15px 35px rgb(255 103 1 / 0.3)',
                 }}
               >
-                <span>🚀</span> Nuevo Pedido
+                <FiPlusCircle className="text-lg animate-pulse" /> Nuevo Pedido
               </motion.button>
             </div>
 
-            <motion.div 
-              variants={container}
-              initial="hidden"
-              animate="visible"
-              className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
               {stats.map((s) => (
                 <motion.div
                   key={s.id}
-                  variants={item}
                   whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                  className={`rounded-2xl p-5 cursor-pointer relative overflow-hidden shadow-xl ring-1 ${
+                  className={`rounded-2xl p-5 cursor-pointer relative overflow-hidden shadow-xl ring-1 bg-[#FCECDD]/90 dark:bg-slate-900/80 ${
                     s.accent === 'primary' ? 'border-primary/20 ring-primary/5' :
                     s.accent === 'warning' ? 'border-orange-200 ring-orange-100' :
                     s.accent === 'rose' ? 'border-rose-200 ring-rose-100' :
                     'border-slate-200 ring-slate-100'
                   }`}
                   style={{
-                    backgroundColor: deviceTheme === 'dark' ? 'rgb(15 23 42 / 0.8)' : 'rgb(252 236 221 / 0.9)',
                     borderTopWidth: '4px',
                     borderTopColor: s.accent === 'primary' ? '#FF6701' : s.accent === 'warning' ? '#FFA82F' : s.accent === 'rose' ? '#F43F5E' : '#3B82F6'
                   }}
@@ -231,8 +202,8 @@ export default function Dashboard() {
                   />
                   
                   <div className="flex justify-between items-start mb-4">
-                    <div className="p-3 rounded-xl bg-white dark:bg-slate-800 shadow-inner">
-                      <span className="text-2xl">{s.icon}</span>
+                    <div className="p-3 rounded-xl bg-white dark:bg-slate-800 shadow-inner" style={{ color: s.accent === 'primary' ? '#FF6701' : s.accent === 'warning' ? '#FFA82F' : s.accent === 'rose' ? '#F43F5E' : '#3B82F6' }}>
+                      <s.icon className="text-2xl" />
                     </div>
                     <div className={`px-2 py-1 rounded-lg text-xs font-bold border ${
                       s.trendUp ? 'bg-green-100 text-green-600 border-green-200' : 'bg-rose-100 text-rose-600 border-rose-200'
@@ -253,32 +224,25 @@ export default function Dashboard() {
                   </div>
                 </motion.div>
               ))}
-            </motion.div>
+            </div>
 
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-2xl border"
-              style={{
-                backgroundColor: deviceTheme === 'dark' ? 'rgb(15 23 42 / 0.9)' : 'rgb(255 245 240)',
-                borderColor: '#FF6701',
-              }}
-            >
+            <div className="backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-2xl border bg-[#FFF5F0]/90 dark:bg-slate-900/90 border-[#FF6701]">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
-                  <h2 className="text-2xl font-bold flex items-center gap-3" style={{ color: deviceTheme === 'dark' ? 'white' : 'rgb(15 23 42)' }}>
-                    <span className="p-2 rounded-xl" style={{ backgroundColor: '#FF6701', color: 'white' }}>📦</span>
+                  <h2 className="text-2xl font-bold flex items-center gap-3 text-slate-900 dark:text-white">
+                    <span className="p-2 rounded-xl flex items-center justify-center bg-[#FF6701] text-white">
+                      <FiPackage className="text-xl" />
+                    </span>
                     Pedidos Recientes
                   </h2>
-                  <p className="text-sm mt-1" style={{ color: deviceTheme === 'dark' ? 'rgb(148 163 184)' : 'rgb(100 116 139)' }}>Últimas transacciones registradas en el sistema</p>
+                  <p className="text-sm mt-1 text-slate-500 dark:text-slate-400">Últimas transacciones registradas en el sistema</p>
                 </div>
-                <button className="text-sm font-bold flex items-center gap-1 transition-all" style={{ color: '#FF6701' }}>
-                  Ver todo el historial <span>→</span>
+                <button className="text-sm font-bold flex items-center gap-2 transition-all hover:gap-3 text-[#FF6701]">
+                  Ver todo el historial <FiArrowRight className="text-lg" />
                 </button>
               </div>
 
-              <div className="overflow-x-auto -mx-6 -mb-6 md:-mx-8 md:-mb-8 rounded-b-3xl" style={{ backgroundColor: deviceTheme === 'dark' ? 'rgb(15 23 42 / 0.5)' : 'rgb(255 103 1 / 0.05)' }}>
+              <div className="overflow-x-auto -mx-6 -mb-6 md:-mx-8 md:-mb-8 rounded-b-3xl bg-[#FF6701]/5 dark:bg-slate-900/50">
                 <table className="w-full text-left border-separate border-spacing-y-3">
                   <thead>
                     <tr className="uppercase text-[10px] tracking-[0.2em] font-black" style={{ color: '#FF6701' }}>
@@ -294,32 +258,27 @@ export default function Dashboard() {
                     {recentOrders.map((ord, idx) => (
                       <motion.tr 
                         key={ord.id}
-                        className="group rounded-2xl shadow-sm transition-all duration-200 px-6"
-                        style={{
-                          backgroundColor: idx % 2 === 0 ? (deviceTheme === 'dark' ? 'rgb(51 65 85 / 0.3)' : 'rgb(255 255 255 / 0.9)') : (deviceTheme === 'dark' ? 'transparent' : 'rgb(255 250 245)'),
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#FF6701' + (deviceTheme === 'dark' ? '20' : '15');
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = idx % 2 === 0 ? (deviceTheme === 'dark' ? 'rgb(51 65 85 / 0.3)' : 'rgb(255 255 255 / 0.9)') : (deviceTheme === 'dark' ? 'transparent' : 'rgb(255 250 245)');
-                        }}
+                        className={`group rounded-2xl shadow-sm transition-all duration-200 px-6 hover:bg-[#FF6701]/15 dark:hover:bg-[#FF6701]/20 ${
+                          idx % 2 === 0 
+                            ? 'bg-white/90 dark:bg-slate-700/30' 
+                            : 'bg-[#FFF5F0]/50 dark:bg-transparent'
+                        }`}
                       >
                         <td className="px-6 py-5 first:rounded-l-2xl">
                           <span className="font-black text-xs px-3 py-1.5 rounded-lg border" style={{ color: '#FF6701', backgroundColor: 'rgb(255 103 1 / 0.1)', borderColor: 'rgb(255 103 1 / 0.2)' }}>
                             {ord.orderNum}
                           </span>
                         </td>
-                        <td className="px-6 py-5" style={{ color: deviceTheme === 'dark' ? 'rgb(203 213 225)' : 'rgb(15 23 42)' }}>
+                        <td className="px-6 py-5 text-slate-900 dark:text-slate-300">
                           <span className="font-bold">{ord.client}</span>
                         </td>
-                        <td className="px-6 py-5" style={{ color: deviceTheme === 'dark' ? 'rgb(148 163 184)' : 'rgb(71 85 105)' }}>
+                        <td className="px-6 py-5 text-slate-600 dark:text-slate-400">
                           <span className="text-sm">{ord.product}</span>
                         </td>
-                        <td className="px-6 py-5" style={{ color: deviceTheme === 'dark' ? 'rgb(148 163 184)' : 'rgb(71 85 105)' }}>
+                        <td className="px-6 py-5 text-slate-600 dark:text-slate-400">
                           <span className="text-sm italic font-medium">{ord.quantity}</span>
                         </td>
-                        <td className="px-6 py-5" style={{ color: deviceTheme === 'dark' ? 'white' : 'rgb(15 23 42)', fontWeight: 'bold' }}>
+                        <td className="px-6 py-5 text-slate-900 dark:text-white font-bold">
                           <span>{ord.amount}</span>
                         </td>
                         <td className="px-6 py-5 last:rounded-r-2xl text-center">
@@ -338,7 +297,14 @@ export default function Dashboard() {
                   </tbody>
                 </table>
               </div>
-            </motion.div>
+            </div>
+          </>
+        )}
+
+            {activeMenu === 'productos' && <ProductosView />}
+            {activeMenu === 'ventas' && <VentasView />}
+            {activeMenu === 'reportes' && <ReportesView />}
+            {activeMenu === 'registros' && <RegistrosView />}
           </div>
         </main>
       </div>

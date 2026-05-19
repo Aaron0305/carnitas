@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { FiBell, FiMessageSquare, FiHelpCircle, FiSearch, FiChevronDown } from 'react-icons/fi';
 
 interface NavbarProps {
   userName?: string;
@@ -10,32 +11,46 @@ interface NavbarProps {
 }
 
 export default function Navbar({
-  userName = 'Juan Pérez',
-  userInitials = 'JP',
+  userName: propUserName,
+  userInitials: propUserInitials,
   onLogout,
 }: NavbarProps) {
   const [searchFocus, setSearchFocus] = useState(false);
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
-  const [deviceTheme, setDeviceTheme] = useState<'light' | 'dark'>('light');
+
+  const [userName, setUserName] = useState(propUserName || 'Juan Pérez');
+  const [userInitials, setUserInitials] = useState(propUserInitials || 'JP');
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const syncTheme = () => {
-      setDeviceTheme(mediaQuery.matches ? 'dark' : 'light');
-    };
-    syncTheme();
-    mediaQuery.addEventListener('change', syncTheme);
-    return () => mediaQuery.removeEventListener('change', syncTheme);
-  }, []);
+    if (!propUserName) {
+      const savedName = localStorage.getItem('user_name');
+      if (savedName) {
+        setUserName(savedName);
+        const initials = savedName
+          .split(' ')
+          .map((part) => part[0])
+          .join('')
+          .toUpperCase()
+          .slice(0, 2);
+        setUserInitials(initials || 'JP');
+      } else {
+        const email = localStorage.getItem('user_email');
+        if (email) {
+          if (email === 'admin@gmail.com') {
+            setUserName('Administrador');
+            setUserInitials('AD');
+          } else {
+            const parts = email.split('@')[0];
+            const formattedName = parts.charAt(0).toUpperCase() + parts.slice(1);
+            setUserName(formattedName);
+            setUserInitials(parts.substring(0, 2).toUpperCase());
+          }
+        }
+      }
+    }
+  }, [propUserName]);
 
-  const navbarVariants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: 'easeOut' as const },
-    },
-  };
+
 
   const iconVariants = {
     idle: { scale: 1 },
@@ -48,63 +63,40 @@ export default function Navbar({
   };
 
   const navIcons = [
-    { id: 'notifications', icon: '🔔', title: 'Notificaciones' },
-    { id: 'messages', icon: '💬', title: 'Mensajes' },
-    { id: 'help', icon: '❓', title: 'Ayuda' },
+    { id: 'notifications', icon: FiBell, title: 'Notificaciones' },
+    { id: 'messages', icon: FiMessageSquare, title: 'Mensajes' },
+    { id: 'help', icon: FiHelpCircle, title: 'Ayuda' },
   ];
 
   return (
-    <motion.nav
-      variants={navbarVariants}
-      initial="hidden"
-      animate="visible"
-      className="backdrop-blur px-8 py-4 shadow-lg flex justify-between items-center h-20 border-b"
-      style={{
-        backgroundColor: deviceTheme === 'dark' ? 'rgb(15 23 42 / 0.9)' : 'rgb(252 236 221 / 0.9)',
-        borderColor: deviceTheme === 'dark' ? 'rgb(51 65 85 / 0.3)' : 'rgb(255 103 1 / 0.15)',
-      }}
+    <nav
+      className="backdrop-blur px-8 py-4 shadow-lg flex justify-between items-center h-20 border-b bg-[#FCECDD]/90 border-[#FF6701]/15 dark:bg-slate-900/90 dark:border-slate-800/30"
     >
       {/* Left Section - Search */}
-      <motion.div
-        className="flex items-center gap-6 flex-1"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.2 }}
-      >
+      <div className="flex items-center gap-6 flex-1">
         <motion.div
           animate={{
             boxShadow: searchFocus
               ? '0 0 0 3px rgb(255 103 1 / 0.1)'
               : '0 0 0 0px rgba(255, 103, 1, 0)',
           }}
-          className="flex items-center px-4 py-2 rounded-full min-w-80 border-2 transition-all duration-300"
-          style={{
-            backgroundColor: deviceTheme === 'dark' ? 'rgb(51 65 85 / 0.5)' : 'rgb(255 255 255 / 0.7)',
-            borderColor: searchFocus ? '#FF6701' : (deviceTheme === 'dark' ? 'rgb(51 65 85 / 0.5)' : 'rgb(255 103 1 / 0.15)'),
-          }}
+          className={`flex items-center px-4 py-2 rounded-full min-w-80 border-2 transition-all duration-300 bg-white/70 dark:bg-slate-700/50 ${
+            searchFocus ? 'border-[#FF6701]' : 'border-[#FF6701]/15 dark:border-slate-700/50'
+          }`}
         >
-          <span className="mr-3 text-lg">🔍</span>
+          <FiSearch className="mr-3 text-xl text-[#FF6701]" />
           <input
             type="text"
             placeholder="Buscar..."
             onFocus={() => setSearchFocus(true)}
             onBlur={() => setSearchFocus(false)}
-            className="bg-transparent outline-none w-full font-medium"
-            style={{
-              color: deviceTheme === 'dark' ? 'white' : 'rgb(15 23 42)',
-              placeholder: 'currentColor',
-            }}
+            className="bg-transparent outline-none w-full font-medium text-slate-900 dark:text-white"
           />
         </motion.div>
-      </motion.div>
+      </div>
 
       {/* Right Section */}
-      <motion.div
-        className="flex items-center gap-6"
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.2 }}
-      >
+      <div className="flex items-center gap-6">
         {/* Icon Buttons */}
         <div className="flex items-center gap-3">
           {navIcons.map((item) => (
@@ -116,65 +108,39 @@ export default function Navbar({
               onMouseEnter={() => setHoveredIcon(item.id)}
               onMouseLeave={() => setHoveredIcon(null)}
               title={item.title}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-lg cursor-pointer transition-all duration-300 border"
-              style={{
-                borderColor: deviceTheme === 'dark' ? 'rgb(51 65 85 / 0.5)' : 'rgb(255 103 1 / 0.15)',
-                backgroundColor: deviceTheme === 'dark' ? 'rgba(51, 65, 85, 0.3)' : 'rgba(252, 236, 221, 0.7)',
-              }}
+              className="w-10 h-10 rounded-full flex items-center justify-center text-lg cursor-pointer transition-all duration-300 border border-[#FF6701]/15 bg-[#FCECDD]/70 dark:border-slate-700/50 dark:bg-slate-800/30"
             >
-              {item.icon}
+              <item.icon className="text-xl" />
             </motion.button>
           ))}
         </div>
 
         {/* Divider */}
-        <div className="h-8 w-px" style={{ backgroundColor: deviceTheme === 'dark' ? 'rgb(51 65 85 / 0.5)' : 'rgb(255 103 1 / 0.15)' }} />
+        <div className="h-8 w-px bg-[#FF6701]/15 dark:bg-slate-700/50" />
 
-        {/* User Profile */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={onLogout}
-          title="Cerrar sesión"
-          className="flex items-center gap-3 p-2 rounded-lg transition-all duration-300 group cursor-pointer"
-          style={{
-            '&:hover': {
-              backgroundColor: deviceTheme === 'dark' ? 'rgb(51 65 85 / 0.5)' : 'rgb(255 103 1 / 0.1)',
-            }
-          }}
-        >
+        {/* User Profile - Info Estática */}
+        <div className="flex items-center gap-3">
           {/* Avatar */}
-          <motion.div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md"
             style={{
               background: 'linear-gradient(135deg, #FF6701, #FFA82F)',
-              boxShadow: '0 4px 15px rgb(255 103 1 / 0.3)',
             }}
-            whileHover={{ boxShadow: '0 0 20px rgb(255 103 1 / 0.5)' }}
           >
             {userInitials}
-          </motion.div>
+          </div>
 
           {/* User Info */}
           <div className="text-left hidden sm:block">
-            <h3 className="text-sm font-bold" style={{ color: deviceTheme === 'dark' ? 'white' : 'rgb(15 23 42)' }}>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
               {userName}
             </h3>
-            <p className="text-xs font-medium" style={{ color: deviceTheme === 'dark' ? 'rgb(148 163 184)' : 'rgb(100 116 139)' }}>
-              Gerente
-            </p>
+            <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider bg-[#FF6701]/10 text-[#FF6701] dark:bg-slate-800/50 dark:text-slate-300">
+              Conectado
+            </span>
           </div>
-
-          {/* Dropdown arrow */}
-          <motion.span
-            animate={{ rotate: hoveredIcon === 'profile' ? 180 : 0 }}
-            className="hidden sm:inline ml-2"
-            style={{ color: deviceTheme === 'dark' ? 'rgb(148 163 184)' : 'rgb(148 163 184)' }}
-          >
-            ▼
-          </motion.span>
-        </motion.button>
-      </motion.div>
-    </motion.nav>
+        </div>
+      </div>
+    </nav>
   );
 }
