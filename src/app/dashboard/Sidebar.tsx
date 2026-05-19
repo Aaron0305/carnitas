@@ -9,9 +9,11 @@ interface SidebarProps {
   activeMenu?: string;
   onMenuChange?: (menu: string) => void;
   onLogout?: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export default function Sidebar({ activeMenu = 'dashboard', onMenuChange, onLogout }: SidebarProps) {
+export default function Sidebar({ activeMenu = 'dashboard', onMenuChange, onLogout, isOpen = true, onClose }: SidebarProps) {
   const [isHovered, setIsHovered] = useState<string | null>(null);
 
   const menuItems = [
@@ -26,12 +28,32 @@ export default function Sidebar({ activeMenu = 'dashboard', onMenuChange, onLogo
     if (onMenuChange) {
       onMenuChange(menuId);
     }
+    // Cerrar sidebar en móvil después de hacer clic
+    if (window.innerWidth < 768 && onClose) {
+      onClose();
+    }
   };
 
   return (
-    <aside
-      className="w-64 fixed h-screen left-0 top-0 z-40 overflow-y-auto border-r px-6 py-7 shadow-xl backdrop-blur bg-[#FCECDD]/95 border-[#FF6701]/15 dark:bg-slate-900 dark:border-slate-800/50"
-    >
+    <>
+      {/* Overlay para móvil */}
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="md:hidden fixed inset-0 bg-black/50 z-30"
+        />
+      )}
+
+      {/* Sidebar */}
+      <motion.aside
+        initial={{ x: -256 }}
+        animate={{ x: isOpen ? 0 : -256 }}
+        transition={{ duration: 0.3 }}
+        className="w-64 fixed h-screen left-0 top-0 z-40 md:z-40 overflow-y-auto border-r px-6 py-7 shadow-xl backdrop-blur bg-[#FCECDD]/95 border-[#FF6701]/15 dark:bg-slate-900 dark:border-slate-800/50 md:translate-x-0"
+      >
       {/* Logo */}
       <div className="mb-8">
         <div className="flex items-center gap-3 p-3 rounded-xl text-white shadow-lg"
@@ -101,6 +123,7 @@ export default function Sidebar({ activeMenu = 'dashboard', onMenuChange, onLogo
           <span>Cerrar Sesión</span>
         </motion.button>
       </div>
-    </aside>
+    </motion.aside>
+    </>
   );
 }

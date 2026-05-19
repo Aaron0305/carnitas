@@ -69,28 +69,28 @@ export default function RegistrosView() {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Encabezado */}
       <div>
-        <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white flex items-center gap-3">
-          <span className="p-2.5 rounded-2xl bg-[#FF6701] text-white shadow-lg">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2 md:gap-3">
+          <span className="p-2 md:p-2.5 rounded-2xl bg-[#FF6701] text-white shadow-lg text-lg md:text-xl">
             <FiUsers />
           </span>
           Gestión de <span style={{ color: '#FF6701', fontStyle: 'italic' }}>Personal y Accesos</span>
         </h1>
-        <p className="mt-2 text-slate-500 dark:text-slate-400">
+        <p className="mt-2 text-xs md:text-sm text-slate-500 dark:text-slate-400">
           Registra nuevos empleados y administradores en el sistema, y administra sus niveles de acceso al panel de Carnitas.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Formulario de Registro */}
-        <div className="bg-[#FFF5F0]/90 dark:bg-slate-900/90 border border-[#FF6701]/30 rounded-3xl p-6 md:p-8 shadow-2xl">
-          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+        <div className="bg-[#FFF5F0]/90 dark:bg-slate-900/90 border border-[#FF6701]/30 rounded-3xl p-5 md:p-6 lg:p-8 shadow-2xl">
+          <h2 className="text-lg md:text-xl font-extrabold text-slate-900 dark:text-white mb-4 md:mb-6 flex items-center gap-2">
             <FiUserPlus className="text-[#FF6701]" /> Registrar Nuevo Usuario
           </h2>
 
-          <form className="space-y-4" onSubmit={handleRegister}>
+          <form className="space-y-3 md:space-y-4" onSubmit={handleRegister}>
             {formError && (
               <div className="p-3.5 rounded-xl border border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-450 text-xs font-semibold flex items-center gap-2">
                 <FiAlertCircle className="text-base shrink-0" />
@@ -173,14 +173,14 @@ export default function RegistrosView() {
         </div>
 
         {/* Listado de Empleados */}
-        <div className="lg:col-span-2 bg-[#FFF5F0]/90 dark:bg-slate-900/90 border border-[#FF6701]/20 rounded-3xl p-6 shadow-2xl space-y-6 flex flex-col justify-between">
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <div className="lg:col-span-2 bg-[#FFF5F0]/90 dark:bg-slate-900/90 border border-[#FF6701]/20 rounded-3xl p-5 md:p-6 shadow-2xl space-y-4 md:space-y-6 flex flex-col justify-between">
+          <div className="space-y-4 md:space-y-6">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <FiUsers className="text-[#FF6701]" /> Personal Registrado
               </h2>
-              <div className="flex items-center px-4 py-2 rounded-xl border border-[#FF6701]/20 bg-white dark:bg-slate-800 w-full sm:w-64">
-                <FiSearch className="mr-2 text-slate-400" />
+              <div className="flex items-center px-3 md:px-4 py-2 rounded-xl border border-[#FF6701]/20 bg-white dark:bg-slate-800 w-full md:w-64">
+                <FiSearch className="mr-2 text-slate-400 flex-shrink-0" />
                 <input
                   type="text"
                   placeholder="Buscar personal..."
@@ -191,44 +191,44 @@ export default function RegistrosView() {
               </div>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto -mx-5 -mb-5 md:-mx-6 md:-mb-6 rounded-b-3xl bg-[#FF6701]/5 dark:bg-slate-900/50">
               <table className="w-full border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-[#FF6701]/10 dark:border-slate-800 text-xs font-extrabold uppercase tracking-wider text-slate-400">
-                    <th className="pb-4 pl-2">Nombre</th>
-                    <th className="pb-4">Correo</th>
+                  <tr className="border-b border-[#FF6701]/10 dark:border-slate-800 text-[10px] md:text-xs font-extrabold uppercase tracking-wider text-slate-400">
+                    <th className="pb-4 pl-4 md:pl-6">Nombre</th>
+                    <th className="pb-4 hidden sm:table-cell">Correo</th>
                     <th className="pb-4">Rol</th>
-                    <th className="pb-4 pr-2 text-right">F. Registro</th>
+                    <th className="pb-4 pr-4 md:pr-6 hidden md:table-cell text-right text-xs">F. Registro</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
                   {loading ? (
                     <tr>
-                      <td colSpan={4} className="py-8 text-center text-slate-400 font-bold">
+                      <td colSpan={4} className="py-8 text-center text-slate-400 font-bold text-xs md:text-sm animate-pulse">
                         Cargando personal...
                       </td>
                     </tr>
                   ) : filteredEmployees.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="py-8 text-center text-slate-400 font-bold">
+                      <td colSpan={4} className="py-8 text-center text-slate-400 font-bold text-xs md:text-sm">
                         No se encontraron empleados.
                       </td>
                     </tr>
                   ) : (
                     filteredEmployees.map((emp) => (
-                      <tr key={emp.id} className="text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors hover:bg-white/40 dark:hover:bg-slate-800/20">
-                        <td className="py-4 pl-2 font-black text-slate-900 dark:text-white">{emp.name}</td>
-                        <td className="py-4 font-mono text-xs">{emp.email}</td>
+                      <tr key={emp.id} className="text-xs md:text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors hover:bg-white/40 dark:hover:bg-slate-800/20">
+                        <td className="py-4 pl-4 md:pl-6 font-black text-slate-900 dark:text-white">{emp.name}</td>
+                        <td className="py-4 hidden sm:table-cell font-mono text-[10px] md:text-xs break-all">{emp.email}</td>
                         <td className="py-4">
-                          <span className={`text-[9px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider border shadow-sm ${
+                          <span className={`text-[9px] px-2 md:px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider border shadow-sm ${
                             emp.role === 'admin' 
                               ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' 
                               : 'bg-green-500/10 text-green-500 border-green-500/20'
                           }`}>
-                            {emp.role === 'admin' ? 'Administrador' : 'Empleado'}
+                            {emp.role === 'admin' ? 'Admin' : 'Empleado'}
                           </span>
                         </td>
-                        <td className="py-4 pr-2 text-right text-slate-400 text-xs">{emp.created_at}</td>
+                        <td className="py-4 pr-4 md:pr-6 hidden md:table-cell text-right text-slate-400 text-[10px] md:text-xs">{emp.created_at}</td>
                       </tr>
                     ))
                   )}

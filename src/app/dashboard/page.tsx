@@ -33,6 +33,7 @@ interface Order {
 
 export default function Dashboard() {
   const [activeMenu, setActiveMenu] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
     window.location.href = '/login';
@@ -146,45 +147,45 @@ export default function Dashboard() {
         className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[34rem] h-[34rem] rounded-full blur-3xl"
         style={{ backgroundColor: 'rgb(255 103 1 / 0.1)' }}
       />
-      <Sidebar activeMenu={activeMenu} onMenuChange={setActiveMenu} onLogout={handleLogout} />
+      <Sidebar activeMenu={activeMenu} onMenuChange={setActiveMenu} onLogout={handleLogout} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="relative z-10 flex-1 ml-64 flex flex-col overflow-hidden">
-        <Navbar onLogout={handleLogout} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
-          <div className="max-w-7xl mx-auto space-y-8">
+      <div className="relative z-10 flex-1 ml-0 md:ml-64 flex flex-col overflow-hidden">
+        <Navbar onLogout={handleLogout} onMenuToggle={() => setSidebarOpen(!sidebarOpen)} isSidebarOpen={sidebarOpen} />
+        <main className="flex-1 overflow-y-auto p-3 md:p-4 lg:p-8 custom-scrollbar">
+          <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
             {activeMenu === 'dashboard' && (
               <>
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-              <div>
-                <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white">
-                  Panel de <span style={{ color: '#FF6701', fontStyle: 'italic' }}>Control</span>
-                </h1>
-                <p className="mt-2 flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                  <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#FF6701' }} />
-                  Bienvenido de nuevo. Aquí está el resumen de hoy.
-                </p>
+                <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white">
+                    Panel de <span style={{ color: '#FF6701', fontStyle: 'italic' }}>Control</span>
+                  </h1>
+                  <p className="mt-2 flex items-center gap-2 text-xs md:text-sm text-slate-500 dark:text-slate-400">
+                    <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#FF6701' }} />
+                    Bienvenido de nuevo. Aquí está el resumen de hoy.
+                  </p>
+                </div>
+                
+                <motion.button
+                  whileHover={{ scale: 1.02, translateY: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-4 md:px-6 py-2 md:py-3 rounded-2xl text-xs md:text-sm font-bold flex items-center gap-2 text-white shadow-xl border w-full md:w-auto justify-center md:justify-start"
+                  style={{
+                    background: 'linear-gradient(135deg, #FF6701, #FFA82F)',
+                    borderColor: 'rgb(255 103 1 / 0.3)',
+                    boxShadow: '0 15px 35px rgb(255 103 1 / 0.3)',
+                  }}
+                >
+                  <FiPlusCircle className="text-lg animate-pulse" /> Nuevo Pedido
+                </motion.button>
               </div>
-              
-              <motion.button
-                whileHover={{ scale: 1.02, translateY: -2 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-6 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 text-white shadow-xl border"
-                style={{
-                  background: 'linear-gradient(135deg, #FF6701, #FFA82F)',
-                  borderColor: 'rgb(255 103 1 / 0.3)',
-                  boxShadow: '0 15px 35px rgb(255 103 1 / 0.3)',
-                }}
-              >
-                <FiPlusCircle className="text-lg animate-pulse" /> Nuevo Pedido
-              </motion.button>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {stats.map((s) => (
                 <motion.div
                   key={s.id}
                   whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                  className={`rounded-2xl p-5 cursor-pointer relative overflow-hidden shadow-xl ring-1 bg-[#FCECDD]/90 dark:bg-slate-900/80 ${
+                  className={`rounded-2xl p-4 md:p-5 cursor-pointer relative overflow-hidden shadow-xl ring-1 bg-[#FCECDD]/90 dark:bg-slate-900/80 ${
                     s.accent === 'primary' ? 'border-primary/20 ring-primary/5' :
                     s.accent === 'warning' ? 'border-orange-200 ring-orange-100' :
                     s.accent === 'rose' ? 'border-rose-200 ring-rose-100' :
@@ -226,32 +227,32 @@ export default function Dashboard() {
               ))}
             </div>
 
-            <div className="backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-2xl border bg-[#FFF5F0]/90 dark:bg-slate-900/90 border-[#FF6701]">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div className="backdrop-blur-xl rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl border bg-[#FFF5F0]/90 dark:bg-slate-900/90 border-[#FF6701]">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 md:mb-8">
                 <div>
-                  <h2 className="text-2xl font-bold flex items-center gap-3 text-slate-900 dark:text-white">
+                  <h2 className="text-xl md:text-2xl font-bold flex items-center gap-3 text-slate-900 dark:text-white">
                     <span className="p-2 rounded-xl flex items-center justify-center bg-[#FF6701] text-white">
-                      <FiPackage className="text-xl" />
+                      <FiPackage className="text-lg md:text-xl" />
                     </span>
                     Pedidos Recientes
                   </h2>
-                  <p className="text-sm mt-1 text-slate-500 dark:text-slate-400">Últimas transacciones registradas en el sistema</p>
+                  <p className="text-xs md:text-sm mt-1 text-slate-500 dark:text-slate-400">Últimas transacciones registradas en el sistema</p>
                 </div>
-                <button className="text-sm font-bold flex items-center gap-2 transition-all hover:gap-3 text-[#FF6701]">
+                <button className="text-xs md:text-sm font-bold flex items-center gap-2 transition-all hover:gap-3 text-[#FF6701]">
                   Ver todo el historial <FiArrowRight className="text-lg" />
                 </button>
               </div>
 
-              <div className="overflow-x-auto -mx-6 -mb-6 md:-mx-8 md:-mb-8 rounded-b-3xl bg-[#FF6701]/5 dark:bg-slate-900/50">
+              <div className="overflow-x-auto -mx-4 -mb-4 md:-mx-6 md:-mb-6 lg:-mx-8 lg:-mb-8 rounded-b-3xl bg-[#FF6701]/5 dark:bg-slate-900/50">
                 <table className="w-full text-left border-separate border-spacing-y-3">
                   <thead>
-                    <tr className="uppercase text-[10px] tracking-[0.2em] font-black" style={{ color: '#FF6701' }}>
-                      <th className="px-6 py-4">ID Pedido</th>
-                      <th className="px-6 py-4">Cliente</th>
-                      <th className="px-6 py-4">Producto</th>
-                      <th className="px-6 py-4">Cantidad</th>
-                      <th className="px-6 py-4">Venta Total</th>
-                      <th className="px-6 py-4 text-center">Estado</th>
+                    <tr className="uppercase text-[9px] md:text-[10px] tracking-[0.1em] md:tracking-[0.2em] font-black" style={{ color: '#FF6701' }}>
+                      <th className="px-4 md:px-6 py-4 text-xs md:text-sm">ID Pedido</th>
+                      <th className="px-4 md:px-6 py-4 text-xs md:text-sm hidden sm:table-cell">Cliente</th>
+                      <th className="px-4 md:px-6 py-4 text-xs md:text-sm hidden lg:table-cell">Producto</th>
+                      <th className="px-4 md:px-6 py-4 text-xs md:text-sm hidden md:table-cell">Cantidad</th>
+                      <th className="px-4 md:px-6 py-4 text-xs md:text-sm">Venta Total</th>
+                      <th className="px-4 md:px-6 py-4 text-xs md:text-sm text-center">Estado</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -264,25 +265,25 @@ export default function Dashboard() {
                             : 'bg-[#FFF5F0]/50 dark:bg-transparent'
                         }`}
                       >
-                        <td className="px-6 py-5 first:rounded-l-2xl">
-                          <span className="font-black text-xs px-3 py-1.5 rounded-lg border" style={{ color: '#FF6701', backgroundColor: 'rgb(255 103 1 / 0.1)', borderColor: 'rgb(255 103 1 / 0.2)' }}>
+                        <td className="px-4 md:px-6 py-5 first:rounded-l-2xl">
+                          <span className="font-black text-xs px-2 md:px-3 py-1.5 rounded-lg border" style={{ color: '#FF6701', backgroundColor: 'rgb(255 103 1 / 0.1)', borderColor: 'rgb(255 103 1 / 0.2)' }}>
                             {ord.orderNum}
                           </span>
                         </td>
-                        <td className="px-6 py-5 text-slate-900 dark:text-slate-300">
-                          <span className="font-bold">{ord.client}</span>
+                        <td className="px-4 md:px-6 py-5 text-slate-900 dark:text-slate-300 hidden sm:table-cell">
+                          <span className="font-bold text-xs md:text-sm">{ord.client}</span>
                         </td>
-                        <td className="px-6 py-5 text-slate-600 dark:text-slate-400">
-                          <span className="text-sm">{ord.product}</span>
+                        <td className="px-4 md:px-6 py-5 text-slate-600 dark:text-slate-400 hidden lg:table-cell">
+                          <span className="text-xs md:text-sm">{ord.product}</span>
                         </td>
-                        <td className="px-6 py-5 text-slate-600 dark:text-slate-400">
-                          <span className="text-sm italic font-medium">{ord.quantity}</span>
+                        <td className="px-4 md:px-6 py-5 text-slate-600 dark:text-slate-400 hidden md:table-cell">
+                          <span className="text-xs md:text-sm italic font-medium">{ord.quantity}</span>
                         </td>
-                        <td className="px-6 py-5 text-slate-900 dark:text-white font-bold">
-                          <span>{ord.amount}</span>
+                        <td className="px-4 md:px-6 py-5 text-slate-900 dark:text-white font-bold">
+                          <span className="text-xs md:text-sm">{ord.amount}</span>
                         </td>
-                        <td className="px-6 py-5 last:rounded-r-2xl text-center">
-                          <span className="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider border shadow-sm" 
+                        <td className="px-4 md:px-6 py-5 last:rounded-r-2xl text-center">
+                          <span className="px-2 md:px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider border shadow-sm" 
                             style={{
                               color: ord.status === 'delivered' ? 'rgb(34 197 94)' : ord.status === 'processing' ? '#FFA82F' : ord.status === 'pending' ? '#FF6701' : 'rgb(107 114 128)',
                               backgroundColor: ord.status === 'delivered' ? 'rgb(34 197 94 / 0.1)' : ord.status === 'processing' ? 'rgb(255 168 47 / 0.1)' : ord.status === 'pending' ? 'rgb(255 103 1 / 0.1)' : 'rgb(107 114 128 / 0.1)',

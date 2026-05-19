@@ -191,44 +191,44 @@ export default function VentasView() {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white flex items-center gap-3">
-            <span className="p-2 rounded-xl bg-[#FF6701] text-white shadow-md">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2 md:gap-3">
+            <span className="p-2 md:p-2.5 rounded-xl bg-[#FF6701] text-white shadow-md text-lg md:text-xl">
               <FiDollarSign />
             </span>
             Punto de Venta
           </h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs md:text-sm text-slate-500 dark:text-slate-400">
             Selecciona productos del catálogo y regístralos en el carrito.
           </p>
         </div>
         <button
           onClick={loadData}
-          className="flex items-center gap-2 text-xs font-bold px-4 py-2.5 rounded-xl border border-[#FF6701]/30 text-[#FF6701] hover:bg-[#FF6701]/10 transition-all cursor-pointer"
+          className="flex items-center gap-2 text-xs font-bold px-3 md:px-4 py-2 md:py-2.5 rounded-xl border border-[#FF6701]/30 text-[#FF6701] hover:bg-[#FF6701]/10 transition-all cursor-pointer w-full md:w-auto justify-center md:justify-start"
         >
           <FiRefreshCw size={14} /> Recargar
         </button>
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
         {[
           { label: 'Caja Inicial (Apertura)', value: initialCash, info: 'Fondo fijo de cambio', accent: false },
           { label: 'Ventas del Turno', value: totalSalesCash, info: `${recentTransactions.length} transacciones`, accent: true },
           { label: 'Efectivo Total en Caja', value: totalInBox, info: 'Arqueo teórico esperado', accent: false },
         ].map(stat => (
-          <div key={stat.label} className={`rounded-2xl p-5 border shadow-sm flex flex-col gap-1 ${stat.accent
+          <div key={stat.label} className={`rounded-2xl p-4 md:p-5 border shadow-sm flex flex-col gap-1 ${stat.accent
             ? 'bg-[#FF6701] border-[#FF6701] text-white shadow-lg'
             : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'
             }`}>
-            <span className={`text-[11px] font-bold uppercase tracking-widest ${stat.accent ? 'text-orange-100' : 'text-slate-400 dark:text-slate-500'}`}>
+            <span className={`text-[10px] md:text-[11px] font-bold uppercase tracking-widest ${stat.accent ? 'text-orange-100' : 'text-slate-400 dark:text-slate-500'}`}>
               {stat.label}
             </span>
-            <span className={`text-2xl font-black ${stat.accent ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
+            <span className={`text-lg md:text-2xl font-black ${stat.accent ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
               ${stat.value.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
             </span>
-            <span className={`text-[11px] font-semibold ${stat.accent ? 'text-orange-200' : 'text-slate-400'}`}>
+            <span className={`text-[10px] md:text-[11px] font-semibold ${stat.accent ? 'text-orange-200' : 'text-slate-400'}`}>
               {stat.info}
             </span>
           </div>
@@ -236,7 +236,7 @@ export default function VentasView() {
       </div>
 
       {/* Main POS Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6">
 
         {/* ── LEFT: Catalog ── */}
         <div className="lg:col-span-3 flex flex-col gap-4">

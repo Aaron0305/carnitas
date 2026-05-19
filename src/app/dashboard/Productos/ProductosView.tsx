@@ -165,19 +165,19 @@ export default function ProductosView() {
       )}
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white flex items-center gap-3">
-            <span className="p-2.5 rounded-2xl bg-[#FF6701] text-white shadow-lg"><FiPackage /></span>
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2 md:gap-3">
+            <span className="p-2 md:p-2.5 rounded-2xl bg-[#FF6701] text-white shadow-lg text-lg md:text-xl"><FiPackage /></span>
             Inventario de <span style={{ color: '#FF6701', fontStyle: 'italic' }}>Productos</span>
           </h1>
-          <p className="mt-2 text-slate-500 dark:text-slate-400">
+          <p className="mt-2 text-xs md:text-sm text-slate-500 dark:text-slate-400">
             Gestiona tu catálogo, controla el stock disponible y define precios de venta.
           </p>
         </div>
         <button
           onClick={openModal}
-          className="px-5 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 text-white shadow-xl border cursor-pointer transition-all hover:-translate-y-0.5"
+          className="px-4 md:px-5 py-2 md:py-3 rounded-2xl text-xs md:text-sm font-bold flex items-center gap-2 text-white shadow-xl border cursor-pointer transition-all hover:-translate-y-0.5 w-full md:w-auto justify-center md:justify-start"
           style={{ background: 'linear-gradient(135deg, #FF6701, #FFA82F)', borderColor: 'rgba(255,103,1,0.3)' }}
         >
           <FiPlus className="text-lg" /> Añadir Producto
@@ -185,18 +185,18 @@ export default function ProductosView() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
         {[
           { label: 'Total Artículos', value: `${totalItems}`, icon: <FiPackage />, color: 'text-[#FF6701]', bg: 'bg-[#FF6701]/10' },
           { label: 'Poco Stock', value: `${lowStock}`, icon: <FiAlertCircle />, color: 'text-amber-500', bg: 'bg-amber-500/10' },
           { label: 'Agotados', value: `${outOfStock}`, icon: <FiAlertCircle />, color: 'text-rose-500', bg: 'bg-rose-500/10' },
         ].map(s => (
-          <div key={s.label} className="rounded-2xl p-5 bg-[#FCECDD]/80 dark:bg-slate-900/80 border border-[#FF6701]/10 dark:border-slate-800 shadow-xl flex justify-between items-center">
+          <div key={s.label} className="rounded-2xl p-4 md:p-5 bg-[#FCECDD]/80 dark:bg-slate-900/80 border border-[#FF6701]/10 dark:border-slate-800 shadow-xl flex justify-between items-center">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{s.label}</p>
-              <h3 className={`text-2xl font-black mt-1 ${s.color}`}>{loading ? '…' : s.value}</h3>
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-slate-400">{s.label}</p>
+              <h3 className={`text-xl md:text-2xl font-black mt-1 ${s.color}`}>{loading ? '…' : s.value}</h3>
             </div>
-            <span className={`p-2 rounded-xl text-lg ${s.bg} ${s.color}`}>{s.icon}</span>
+            <span className={`p-2 md:p-2.5 rounded-xl text-lg ${s.bg} ${s.color}`}>{s.icon}</span>
           </div>
         ))}
       </div>
@@ -221,42 +221,42 @@ export default function ProductosView() {
       )}
 
       {/* Table */}
-      <div className="bg-[#FFF5F0]/90 dark:bg-slate-900/90 border border-[#FF6701]/25 rounded-3xl p-6 md:p-8 shadow-2xl overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="bg-[#FFF5F0]/90 dark:bg-slate-900/90 border border-[#FF6701]/25 rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl overflow-hidden">
+        <div className="overflow-x-auto -mx-4 -mb-4 md:-mx-6 md:-mb-6 lg:-mx-8 lg:-mb-8 rounded-b-3xl bg-[#FF6701]/5 dark:bg-slate-900/50">
           <table className="w-full border-collapse text-left">
             <thead>
-              <tr className="border-b border-[#FF6701]/10 dark:border-slate-800 text-xs font-extrabold uppercase tracking-wider text-slate-400">
-                <th className="pb-4 pl-4">Producto</th>
-                <th className="pb-4">Presentación</th>
-                {isAdmin && <th className="pb-4 text-slate-450">P. Costo</th>}
-                {isAdmin && <th className="pb-4 text-emerald-500">Ganancia</th>}
+              <tr className="border-b border-[#FF6701]/10 dark:border-slate-800 text-[10px] md:text-xs font-extrabold uppercase tracking-wider text-slate-400">
+                <th className="pb-4 pl-4 md:pl-6">Producto</th>
+                <th className="pb-4 hidden md:table-cell">Presentación</th>
+                {isAdmin && <th className="pb-4 hidden lg:table-cell text-slate-450">P. Costo</th>}
+                {isAdmin && <th className="pb-4 hidden lg:table-cell text-emerald-500">Ganancia</th>}
                 <th className="pb-4">P. Venta</th>
-                <th className="pb-4">Stock</th>
+                <th className="pb-4 hidden sm:table-cell">Stock</th>
                 <th className="pb-4">Estado</th>
-                <th className="pb-4 pr-4 text-center">Acciones</th>
+                <th className="pb-4 pr-4 md:pr-6 text-center">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
               {loading ? (
-                <tr><td colSpan={6} className="py-8 text-center text-slate-400 font-bold animate-pulse">Cargando productos...</td></tr>
+                <tr><td colSpan={8} className="py-8 text-center text-slate-400 font-bold animate-pulse text-xs md:text-sm">Cargando productos...</td></tr>
               ) : products.length === 0 ? (
-                <tr><td colSpan={6} className="py-8 text-center text-slate-400 font-semibold">No hay productos registrados.</td></tr>
+                <tr><td colSpan={8} className="py-8 text-center text-slate-400 font-semibold text-xs md:text-sm">No hay productos registrados.</td></tr>
               ) : products.map(p => (
-                <tr key={p.id} className="text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/20 transition-colors">
-                  <td className="py-4 pl-4 font-black text-slate-900 dark:text-white">{p.name}</td>
-                  <td className="py-4">{p.category}</td>
-                  {isAdmin && <td className="py-4 text-slate-400 font-bold">${(p.cost_price || 0).toFixed(2)}</td>}
+                <tr key={p.id} className="text-xs md:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/20 transition-colors">
+                  <td className="py-4 pl-4 md:pl-6 font-black text-slate-900 dark:text-white">{p.name}</td>
+                  <td className="py-4 hidden md:table-cell">{p.category}</td>
+                  {isAdmin && <td className="py-4 hidden lg:table-cell text-slate-400 font-bold">${(p.cost_price || 0).toFixed(2)}</td>}
                   {isAdmin && (
-                    <td className="py-4 font-black text-emerald-600 dark:text-emerald-400">
+                    <td className="py-4 hidden lg:table-cell font-black text-emerald-600 dark:text-emerald-400">
                       +${(p.gain_price || 0).toFixed(2)}
                     </td>
                   )}
                   <td className="py-4 text-[#FF6701] font-black">{p.price}</td>
-                  <td className="py-4">{p.stock}</td>
+                  <td className="py-4 hidden sm:table-cell">{p.stock}</td>
                   <td className="py-4">
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${p.accent}`}>{p.status}</span>
                   </td>
-                  <td className="py-4 pr-4">
+                  <td className="py-4 pr-4 md:pr-6">
                     <div className="flex items-center justify-center gap-2">
                       <button onClick={() => handleDelete(p.id!)} className="p-2 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all cursor-pointer" title="Eliminar">
                         <FiTrash2 className="text-sm" />
@@ -272,25 +272,25 @@ export default function ProductosView() {
 
       {/* ─── MODAL ──────────────────────────────────────────────────── */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 md:p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[95vh] md:max-h-[90vh]">
 
             {/* Modal Header */}
-            <div className="px-7 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-3">
-                <span className="p-2 rounded-xl bg-[#FF6701] text-white shadow"><FiPackage size={16} /></span>
+            <div className="px-5 md:px-7 py-4 md:py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2 md:gap-3">
+                <span className="p-2 rounded-xl bg-[#FF6701] text-white shadow text-sm md:text-base"><FiPackage size={14} className="md:w-4 md:h-4" /></span>
                 <div>
-                  <h2 className="text-base font-extrabold text-slate-900 dark:text-white">Registrar Nuevo Producto</h2>
-                  <p className="text-[11px] text-slate-400 mt-0.5">Paso {step} de 2 — {step === 1 ? 'Información básica' : 'Precios y stock'}</p>
+                  <h2 className="text-sm md:text-base font-extrabold text-slate-900 dark:text-white">Registrar Nuevo Producto</h2>
+                  <p className="text-[10px] md:text-[11px] text-slate-400 mt-0.5">Paso {step} de 2 — {step === 1 ? 'Información básica' : 'Precios y stock'}</p>
                 </div>
               </div>
-              <button onClick={closeModal} className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-all cursor-pointer">
-                <FiX size={18} />
+              <button onClick={closeModal} className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-all cursor-pointer flex-shrink-0">
+                <FiX size={16} className="md:w-5 md:h-5" />
               </button>
             </div>
 
             {/* Step indicator */}
-            <div className="px-7 pt-4 shrink-0">
+            <div className="px-5 md:px-7 pt-3 md:pt-4 shrink-0">
               <div className="flex items-center gap-2">
                 <div className="flex-1 h-1.5 rounded-full bg-[#FF6701]" />
                 <div className={`flex-1 h-1.5 rounded-full transition-colors ${step === 2 ? 'bg-[#FF6701]' : 'bg-slate-200 dark:bg-slate-700'}`} />
@@ -298,7 +298,7 @@ export default function ProductosView() {
             </div>
 
             {/* Modal Body */}
-            <div className="overflow-y-auto flex-1 px-7 py-5 space-y-5">
+            <div className="overflow-y-auto flex-1 px-5 md:px-7 py-4 md:py-5 space-y-4 md:space-y-5">
 
               {/* ── PASO 1 ─────────────────────────────────────────── */}
               {step === 1 && (
