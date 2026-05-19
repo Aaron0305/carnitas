@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface NavbarProps {
   userName?: string;
@@ -16,6 +16,17 @@ export default function Navbar({
 }: NavbarProps) {
   const [searchFocus, setSearchFocus] = useState(false);
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
+  const [deviceTheme, setDeviceTheme] = useState<'light' | 'dark'>('light');
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const syncTheme = () => {
+      setDeviceTheme(mediaQuery.matches ? 'dark' : 'light');
+    };
+    syncTheme();
+    mediaQuery.addEventListener('change', syncTheme);
+    return () => mediaQuery.removeEventListener('change', syncTheme);
+  }, []);
 
   const navbarVariants = {
     hidden: { opacity: 0, y: -20 },
@@ -27,10 +38,10 @@ export default function Navbar({
   };
 
   const iconVariants = {
-    idle: { scale: 1, backgroundColor: 'rgb(240, 245, 250)' },
+    idle: { scale: 1 },
     hovered: {
-      scale: 1.1,
-      backgroundColor: 'rgb(255, 103, 1)',
+      scale: 1.08,
+      backgroundColor: '#FF6701',
       color: 'white',
       transition: { duration: 0.3 },
     },
@@ -47,7 +58,11 @@ export default function Navbar({
       variants={navbarVariants}
       initial="hidden"
       animate="visible"
-      className="bg-white dark:bg-slate-900 px-8 py-4 shadow-card dark:shadow-lg dark:shadow-slate-950/50 flex justify-between items-center h-20 border-b border-slate-200 dark:border-slate-800"
+      className="backdrop-blur px-8 py-4 shadow-lg flex justify-between items-center h-20 border-b"
+      style={{
+        backgroundColor: deviceTheme === 'dark' ? 'rgb(15 23 42 / 0.9)' : 'rgb(252 236 221 / 0.9)',
+        borderColor: deviceTheme === 'dark' ? 'rgb(51 65 85 / 0.3)' : 'rgb(255 103 1 / 0.15)',
+      }}
     >
       {/* Left Section - Search */}
       <motion.div
@@ -59,18 +74,26 @@ export default function Navbar({
         <motion.div
           animate={{
             boxShadow: searchFocus
-              ? '0 0 0 3px rgba(255, 103, 1, 0.1)'
+              ? '0 0 0 3px rgb(255 103 1 / 0.1)'
               : '0 0 0 0px rgba(255, 103, 1, 0)',
           }}
-          className="flex items-center bg-slate-50 dark:bg-slate-800 px-4 py-2 rounded-full min-w-80 border-2 border-transparent hover:border-primary transition-all duration-300"
+          className="flex items-center px-4 py-2 rounded-full min-w-80 border-2 transition-all duration-300"
+          style={{
+            backgroundColor: deviceTheme === 'dark' ? 'rgb(51 65 85 / 0.5)' : 'rgb(255 255 255 / 0.7)',
+            borderColor: searchFocus ? '#FF6701' : (deviceTheme === 'dark' ? 'rgb(51 65 85 / 0.5)' : 'rgb(255 103 1 / 0.15)'),
+          }}
         >
-          <span className="text-slate-400 dark:text-slate-500 mr-3 text-lg">🔍</span>
+          <span className="mr-3 text-lg">🔍</span>
           <input
             type="text"
             placeholder="Buscar..."
             onFocus={() => setSearchFocus(true)}
             onBlur={() => setSearchFocus(false)}
-            className="bg-transparent outline-none text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 w-full font-medium"
+            className="bg-transparent outline-none w-full font-medium"
+            style={{
+              color: deviceTheme === 'dark' ? 'white' : 'rgb(15 23 42)',
+              placeholder: 'currentColor',
+            }}
           />
         </motion.div>
       </motion.div>
@@ -93,7 +116,11 @@ export default function Navbar({
               onMouseEnter={() => setHoveredIcon(item.id)}
               onMouseLeave={() => setHoveredIcon(null)}
               title={item.title}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-lg cursor-pointer transition-all duration-300"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-lg cursor-pointer transition-all duration-300 border"
+              style={{
+                borderColor: deviceTheme === 'dark' ? 'rgb(51 65 85 / 0.5)' : 'rgb(255 103 1 / 0.15)',
+                backgroundColor: deviceTheme === 'dark' ? 'rgba(51, 65, 85, 0.3)' : 'rgba(252, 236, 221, 0.7)',
+              }}
             >
               {item.icon}
             </motion.button>
@@ -101,7 +128,7 @@ export default function Navbar({
         </div>
 
         {/* Divider */}
-        <div className="h-8 w-px bg-slate-200 dark:bg-slate-700" />
+        <div className="h-8 w-px" style={{ backgroundColor: deviceTheme === 'dark' ? 'rgb(51 65 85 / 0.5)' : 'rgb(255 103 1 / 0.15)' }} />
 
         {/* User Profile */}
         <motion.button
@@ -109,22 +136,31 @@ export default function Navbar({
           whileTap={{ scale: 0.98 }}
           onClick={onLogout}
           title="Cerrar sesión"
-          className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 group cursor-pointer"
+          className="flex items-center gap-3 p-2 rounded-lg transition-all duration-300 group cursor-pointer"
+          style={{
+            '&:hover': {
+              backgroundColor: deviceTheme === 'dark' ? 'rgb(51 65 85 / 0.5)' : 'rgb(255 103 1 / 0.1)',
+            }
+          }}
         >
           {/* Avatar */}
           <motion.div
-            className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-primary-light flex items-center justify-center text-white font-bold text-sm shadow-glow-primary"
-            whileHover={{ boxShadow: '0 0 20px rgba(255, 103, 1, 0.5)' }}
+            className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
+            style={{
+              background: 'linear-gradient(135deg, #FF6701, #FFA82F)',
+              boxShadow: '0 4px 15px rgb(255 103 1 / 0.3)',
+            }}
+            whileHover={{ boxShadow: '0 0 20px rgb(255 103 1 / 0.5)' }}
           >
             {userInitials}
           </motion.div>
 
           {/* User Info */}
           <div className="text-left hidden sm:block">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+            <h3 className="text-sm font-bold" style={{ color: deviceTheme === 'dark' ? 'white' : 'rgb(15 23 42)' }}>
               {userName}
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            <p className="text-xs font-medium" style={{ color: deviceTheme === 'dark' ? 'rgb(148 163 184)' : 'rgb(100 116 139)' }}>
               Gerente
             </p>
           </div>
@@ -132,7 +168,8 @@ export default function Navbar({
           {/* Dropdown arrow */}
           <motion.span
             animate={{ rotate: hoveredIcon === 'profile' ? 180 : 0 }}
-            className="text-slate-400 dark:text-slate-500 hidden sm:inline ml-2"
+            className="hidden sm:inline ml-2"
+            style={{ color: deviceTheme === 'dark' ? 'rgb(148 163 184)' : 'rgb(148 163 184)' }}
           >
             ▼
           </motion.span>
