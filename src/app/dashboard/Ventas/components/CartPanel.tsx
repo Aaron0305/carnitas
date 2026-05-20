@@ -16,11 +16,14 @@ interface Props {
   onClear: () => void;
   onClientChange: (v: string) => void;
   onSubmit: () => void;
+  onSendToKitchen: () => void;
+  sendingToKitchen: boolean;
 }
 
 export default function CartPanel({
   cart, cartTotal, cartCount, clientName, submitting, orderLabel,
   onUpdateQty, onRemove, onClear, onClientChange, onSubmit,
+  onSendToKitchen, sendingToKitchen
 }: Props) {
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col">
@@ -88,18 +91,33 @@ export default function CartPanel({
             className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#FF6701]/60 transition-colors"
           />
         </div>
-        <button
-          onClick={onSubmit}
-          disabled={cart.length === 0 || submitting}
-          className="w-full py-3.5 rounded-2xl font-black text-sm text-white flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
-          style={{ background: cart.length > 0 ? 'linear-gradient(135deg, #FF6701, #FFA040)' : '#ccc' }}
-        >
-          {submitting ? (
-            <><FiRefreshCw className="animate-spin" size={14} /> Procesando…</>
-          ) : (
-            <><FiCheckCircle size={16} /> Cobrar — ${cartTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</>
-          )}
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={onSendToKitchen}
+            disabled={cart.length === 0 || sendingToKitchen}
+            className="flex-1 py-3 rounded-xl border-2 border-dashed border-[#FF6701] text-[#FF6701] dark:border-[#FF6701]/60 dark:text-[#FF6701] hover:bg-[#FF6701]/5 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {sendingToKitchen ? (
+              <><FiRefreshCw className="animate-spin" size={12} /> Enviando…</>
+            ) : (
+              <>🍳 Enviar Cocina</>
+            )}
+          </button>
+          
+          <button
+            onClick={onSubmit}
+            disabled={cart.length === 0 || submitting}
+            className="flex-1 py-3 rounded-xl font-bold text-xs text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+            style={{ background: cart.length > 0 ? 'linear-gradient(135deg, #FF6701, #FFA040)' : '#ccc' }}
+          >
+            {submitting ? (
+              <><FiRefreshCw className="animate-spin" size={12} /> Cobrando…</>
+            ) : (
+              <><FiCheckCircle size={13} /> Cobrar</>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

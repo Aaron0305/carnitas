@@ -32,6 +32,7 @@ export interface PendingOrder {
   client: string;
   note: string;
   createdAt: number;
+  isDbOrder?: boolean;
 }
 
 export interface LastSale {

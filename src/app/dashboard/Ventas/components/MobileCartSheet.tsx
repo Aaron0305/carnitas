@@ -18,11 +18,14 @@ interface Props {
   onRemove: (id: string) => void;
   onClear: () => void;
   onSubmit: () => void;
+  onSendToKitchen: () => void;
+  sendingToKitchen: boolean;
 }
 
 export default function MobileCartSheet({
   show, cart, cartTotal, cartCount, clientName, submitting, activeLabel,
   onClose, onClientChange, onUpdateQty, onRemove, onClear, onSubmit,
+  onSendToKitchen, sendingToKitchen
 }: Props) {
   if (!show) return null;
 
@@ -89,18 +92,33 @@ export default function MobileCartSheet({
                 className="w-full pl-8 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#FF6701]/60 transition-colors"
               />
             </div>
-            <button
-              onClick={onSubmit}
-              disabled={submitting}
-              className="w-full py-4 rounded-2xl font-black text-base text-white flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-40 shadow-md hover:shadow-lg"
-              style={{ background: 'linear-gradient(135deg, #FF6701, #FFA040)' }}
-            >
-              {submitting ? (
-                <><FiRefreshCw className="animate-spin" size={16} /> Procesando…</>
-              ) : (
-                <><FiCheckCircle size={18} /> Cobrar ${cartTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</>
-              )}
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={onSendToKitchen}
+                disabled={sendingToKitchen}
+                className="flex-1 py-3.5 rounded-2xl border-2 border-dashed border-[#FF6701] text-[#FF6701] dark:border-[#FF6701]/60 dark:text-[#FF6701] hover:bg-[#FF6701]/5 font-black text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-40"
+              >
+                {sendingToKitchen ? (
+                  <><FiRefreshCw className="animate-spin" size={14} /> Enviando…</>
+                ) : (
+                  <>🍳 Enviar Cocina</>
+                )}
+              </button>
+              
+              <button
+                onClick={onSubmit}
+                disabled={submitting}
+                className="flex-1 py-3.5 rounded-2xl font-black text-sm text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-40 shadow-md hover:shadow-lg"
+                style={{ background: 'linear-gradient(135deg, #FF6701, #FFA040)' }}
+              >
+                {submitting ? (
+                  <><FiRefreshCw className="animate-spin" size={14} /> Cobrando…</>
+                ) : (
+                  <><FiCheckCircle size={15} /> Cobrar</>
+                )}
+              </button>
+            </div>
             <button onClick={onClear} className="w-full py-2.5 rounded-xl border border-red-200 dark:border-red-800 text-red-500 font-bold text-xs hover:bg-red-50 dark:hover:bg-red-900/20 transition-all cursor-pointer text-center">
               <FiTrash2 size={12} className="inline mr-1" /> Limpiar carrito
             </button>

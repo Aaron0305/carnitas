@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { FiHome, FiDollarSign, FiPackage, FiBarChart2, FiClipboard, FiLogOut } from 'react-icons/fi';
+import { FiHome, FiDollarSign, FiPackage, FiBarChart2, FiClipboard, FiLogOut, FiList } from 'react-icons/fi';
 import { GiTacos } from 'react-icons/gi';
 
 interface SidebarProps {
@@ -19,6 +19,7 @@ export default function Sidebar({ activeMenu = 'dashboard', onMenuChange, onLogo
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: FiHome },
     { id: 'ventas', label: 'Ventas', icon: FiDollarSign },
+    { id: 'ordenes', label: 'Órdenes', icon: FiList },
     { id: 'productos', label: 'Productos', icon: FiPackage },
     { id: 'reportes', label: 'Reportes', icon: FiBarChart2 },
     { id: 'registros', label: 'Registros', icon: FiClipboard }

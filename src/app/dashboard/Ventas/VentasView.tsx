@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { FiPlusCircle } from 'react-icons/fi';
 import { VentasService, Venta } from '@/service/ventas';
 import { ProductosService } from '@/service/productos';
+import { OrdenesService } from '@/service/ordenes';
 import type { CartItem, PendingOrder, LastSale } from './types';
 
 import ToastNotification from './components/ToastNotification';
@@ -20,6 +21,7 @@ import TicketModal from './components/TicketModal';
 import CartPanel from './components/CartPanel';
 import PendingOrdersList from './components/PendingOrdersList';
 import RecentSales from './components/RecentSales';
+import QuickPrintModal from './components/QuickPrintModal';
 
 let orderCounter = 0;
 
@@ -45,17 +47,64 @@ export default function VentasView() {
   const [showPendingPanel, setShowPendingPanel] = useState(false);
   const [editingOrderLabel, setEditingOrderLabel] = useState<string | null>(null);
   const [editLabelValue, setEditLabelValue] = useState('');
+  const [sendingToKitchen, setSendingToKitchen] = useState(false);
+  const [showQuickPrint, setShowQuickPrint] = useState(false);
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (selectOrderIdAfterLoad?: string) => {
     setLoading(true);
     try {
-      const [salesData, dbProducts] = await Promise.all([
+      const [salesData, dbProducts, dbActiveOrders] = await Promise.all([
         VentasService.getAll(),
-        ProductosService.getAll()
+        ProductosService.getAll(),
+        OrdenesService.getActiveOrders()
       ]);
       setRecentTransactions(salesData);
       setProductsList(dbProducts || []);
-    } catch {
+
+      if (dbActiveOrders) {
+        const mappedOrders: PendingOrder[] = dbActiveOrders.map(order => ({
+          id: order.id,
+          label: order.table_name,
+          items: (order.items || []).map((i: any) => ({
+            id: String(i.id),
+            name: i.name,
+            qty: i.qty,
+            category: i.category,
+            price: i.price
+          })),
+          client: order.client_name || '',
+          note: order.notes || '',
+          createdAt: new Date(order.created_at).getTime(),
+          isDbOrder: true
+        }));
+
+        setPendingOrders(prev => {
+          const localUnsaved = prev.filter(o => o.id.startsWith('ord-'));
+          const merged = [...mappedOrders, ...localUnsaved];
+          
+          setTimeout(() => {
+            if (selectOrderIdAfterLoad) {
+              const order = merged.find(o => o.id === selectOrderIdAfterLoad);
+              if (order) {
+                setActiveOrderId(order.id);
+                setCart(order.items);
+                setClientName(order.client);
+              }
+            } else {
+              setActiveOrderId(currentId => {
+                if (currentId && merged.some(o => o.id === currentId)) {
+                  return currentId;
+                }
+                return merged.length > 0 ? merged[0].id : null;
+              });
+            }
+          }, 0);
+
+          return merged;
+        });
+      }
+    } catch (err) {
+      console.error('Error al cargar datos:', err);
       setProductsList([]);
     } finally {
       setLoading(false);
@@ -114,9 +163,10 @@ export default function VentasView() {
     showToastMsg(`Nueva orden: ${newOrder.label}`);
   }, [showToastMsg]);
 
-  const switchOrder = useCallback((orderId: string) => {
+  const switchOrder = useCallback((orderId: string, ordersList?: PendingOrder[]) => {
     syncCartWithActiveOrder();
-    const order = pendingOrders.find(o => o.id === orderId);
+    const list = ordersList || pendingOrders;
+    const order = list.find(o => o.id === orderId);
     if (order) {
       setActiveOrderId(order.id);
       setCart(order.items);
@@ -125,7 +175,16 @@ export default function VentasView() {
     setShowPendingPanel(false);
   }, [pendingOrders, syncCartWithActiveOrder]);
 
-  const deletePendingOrder = useCallback((orderId: string) => {
+  const deletePendingOrder = useCallback(async (orderId: string) => {
+    const orderToDelete = pendingOrders.find(o => o.id === orderId);
+    if (orderToDelete?.isDbOrder) {
+      const success = await OrdenesService.delete(orderId);
+      if (!success) {
+        showToastMsg('Error al eliminar orden de la base de datos');
+        return;
+      }
+    }
+
     setPendingOrders(prev => prev.filter(o => o.id !== orderId));
     if (activeOrderId === orderId) {
       const remaining = pendingOrders.filter(o => o.id !== orderId);
@@ -212,6 +271,14 @@ export default function VentasView() {
     });
 
     if (success) {
+      if (activeOrderId && currentOrder?.isDbOrder) {
+        try {
+          await OrdenesService.updateStatus(activeOrderId, 'Entregado');
+        } catch (err) {
+          console.error('Error al actualizar estado en cocina:', err);
+        }
+      }
+
       try {
         const { supabase } = await import('@/service/supabase');
         for (const item of cart) {
@@ -272,6 +339,59 @@ export default function VentasView() {
     setSubmitting(false);
   };
 
+  const handleSendToKitchen = async () => {
+    if (cart.length === 0) return;
+    setSendingToKitchen(true);
+    try {
+      const orderItems = cart.map(i => ({
+        id: i.id,
+        name: i.name,
+        qty: i.qty,
+        category: i.category,
+        price: i.price
+      }));
+
+      const isExistingDbOrder = currentOrder?.isDbOrder === true;
+
+      if (isExistingDbOrder) {
+        const success = await OrdenesService.updateOrder(activeOrderId!, {
+          table_name: activeLabel || 'Mostrador',
+          client_name: clientName || 'Cliente',
+          items: orderItems,
+          total: cartTotal,
+          status: 'Pendiente'
+        });
+
+        if (success) {
+          showToastMsg(`¡${activeLabel || 'Pedido'} actualizado en cocina!`);
+          await loadData(activeOrderId!);
+        } else {
+          showToastMsg('Error al actualizar pedido en cocina');
+        }
+      } else {
+        const newId = await OrdenesService.create({
+          table_name: activeLabel || 'Mostrador',
+          client_name: clientName || 'Cliente',
+          items: orderItems,
+          total: cartTotal,
+          notes: ''
+        });
+
+        if (newId) {
+          showToastMsg(`¡${activeLabel || 'Pedido'} enviado a cocina!`);
+          await loadData(newId);
+        } else {
+          showToastMsg('Error al enviar a cocina');
+        }
+      }
+    } catch (err) {
+      console.error('Error al enviar a cocina:', err);
+      showToastMsg('Error al enviar a cocina');
+    } finally {
+      setSendingToKitchen(false);
+    }
+  };
+
   const categories = useMemo(
     () => ['all', ...Array.from(new Set(productsList.map(p => p.category)))],
     [productsList]
@@ -322,6 +442,7 @@ export default function VentasView() {
         onCancelEdit={() => setEditingOrderLabel(null)}
         onSaveLabel={handleSaveLabel}
         activeLabel={activeLabel}
+        onNewOrder={createNewOrder}
       />
 
       <SearchBar
@@ -377,6 +498,8 @@ export default function VentasView() {
               onClear={clearCart}
               onClientChange={setClientName}
               onSubmit={handleSubmit}
+              onSendToKitchen={handleSendToKitchen}
+              sendingToKitchen={sendingToKitchen}
             />
           ) : (
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden">
@@ -398,6 +521,8 @@ export default function VentasView() {
             onSwitch={switchOrder}
             onDelete={deletePendingOrder}
             onDuplicate={duplicateOrder}
+            onNewOrder={createNewOrder}
+            onQuickPrint={() => setShowQuickPrint(true)}
           />
           {pendingCount === 0 && (
             <RecentSales transactions={recentTransactions} loading={loading} />
@@ -438,11 +563,19 @@ export default function VentasView() {
         onRemove={removeFromCart}
         onClear={clearCart}
         onSubmit={handleSubmit}
+        onSendToKitchen={handleSendToKitchen}
+        sendingToKitchen={sendingToKitchen}
       />
 
       <TicketModal
         lastSale={lastSale}
         onClose={() => setLastSale(null)}
+      />
+
+      <QuickPrintModal
+        isOpen={showQuickPrint}
+        orders={pendingOrders}
+        onClose={() => setShowQuickPrint(false)}
       />
     </div>
   );

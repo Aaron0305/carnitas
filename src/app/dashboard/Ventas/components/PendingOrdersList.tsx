@@ -9,20 +9,43 @@ interface Props {
   onSwitch: (id: string) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
+  onNewOrder?: () => void;
+  onQuickPrint?: () => void;
 }
 
 export default function PendingOrdersList({
-  orders, activeOrderId, onSwitch, onDelete, onDuplicate
+  orders, activeOrderId, onSwitch, onDelete, onDuplicate, onNewOrder, onQuickPrint
 }: Props) {
   if (orders.length === 0) return null;
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
-      <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+      <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
         <h3 className="text-xs font-extrabold text-slate-800 dark:text-white flex items-center gap-1.5">
           <FiClock size={12} /> Órdenes pendientes
           <span className="bg-[#FF6701] text-white text-[9px] font-black px-1.5 py-0.5 rounded-full ml-1">{orders.length}</span>
         </h3>
+        <div className="flex items-center gap-3">
+          {onQuickPrint && (
+            <button
+              type="button"
+              onClick={onQuickPrint}
+              className="text-[10px] text-slate-500 hover:text-[#FF6701] font-bold flex items-center gap-1 transition-colors cursor-pointer"
+              title="Impresión Rápida de Tickets"
+            >
+              🖨️ Impresión Rápida
+            </button>
+          )}
+          {onNewOrder && (
+            <button
+              type="button"
+              onClick={onNewOrder}
+              className="text-[10px] text-[#FF6701] hover:text-[#FFA040] font-black flex items-center gap-0.5 transition-colors cursor-pointer"
+            >
+              + Nueva Orden
+            </button>
+          )}
+        </div>
       </div>
       <div className="divide-y divide-slate-50 dark:divide-slate-800 max-h-48 overflow-y-auto">
         {orders.map(order => {

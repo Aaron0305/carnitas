@@ -6,6 +6,7 @@ import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import ProductosView from './Productos/ProductosView';
 import VentasView from './Ventas/VentasView';
+import OrdenesView from './Ordenes/OrdenesView';
 import ReportesView from './Reportes/ReportesView';
 import RegistrosView from './Registros/RegistrosView';
 import { FiDollarSign, FiPackage, FiUsers, FiBarChart2, FiPlusCircle, FiArrowRight } from 'react-icons/fi';
@@ -308,6 +309,7 @@ export default function Dashboard() {
 
             {activeMenu === 'productos' && <ProductosView />}
             {activeMenu === 'ventas' && <VentasView />}
+            {activeMenu === 'ordenes' && <OrdenesView />}
             {activeMenu === 'reportes' && <ReportesView />}
             {activeMenu === 'registros' && <RegistrosView />}
           </div>
