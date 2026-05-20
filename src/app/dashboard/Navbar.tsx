@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { FiBell, FiMessageSquare, FiChevronDown, FiMenu, FiX, FiSettings } from 'react-icons/fi';
 import { GiTacos } from 'react-icons/gi';
 
@@ -16,41 +16,73 @@ interface NavbarProps {
 export default function Navbar({
   userName: propUserName,
   userInitials: propUserInitials,
-  onLogout,
   onMenuToggle,
   isSidebarOpen = false,
 }: NavbarProps) {
-  const [userName, setUserName] = useState(propUserName || 'Juan Pérez');
-  const [userInitials, setUserInitials] = useState(propUserInitials || 'JP');
+  const fallbackName = propUserName || 'Juan Pérez';
+  const fallbackInitials = propUserInitials || 'JP';
 
-  useEffect(() => {
-    if (!propUserName) {
-      const savedName = localStorage.getItem('user_name');
-      if (savedName) {
-        setUserName(savedName);
-        const initials = savedName
-          .split(' ')
-          .map((part) => part[0])
-          .join('')
-          .toUpperCase()
-          .slice(0, 2);
-        setUserInitials(initials || 'JP');
-      } else {
+  const storedUserSerialized = useSyncExternalStore(
+    (onStoreChange) => {
+      if (typeof window === 'undefined') return () => {};
+
+      const handler = () => onStoreChange();
+      window.addEventListener('storage', handler);
+      window.addEventListener('carnitas:user', handler as EventListener);
+      return () => {
+        window.removeEventListener('storage', handler);
+        window.removeEventListener('carnitas:user', handler as EventListener);
+      };
+    },
+    () => {
+      // If props were provided, prefer them and avoid touching localStorage.
+      if (propUserName || propUserInitials) {
+        return JSON.stringify([fallbackName, fallbackInitials]);
+      }
+
+      try {
+        const savedName = localStorage.getItem('user_name');
+        if (savedName) {
+          const initials = savedName
+            .trim()
+            .split(/\s+/)
+            .map((part) => part[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+          return JSON.stringify([savedName, initials || 'JP']);
+        }
+
         const email = localStorage.getItem('user_email');
         if (email) {
-          if (email === 'admin@gmail.com') {
-            setUserName('Administrador');
-            setUserInitials('AD');
-          } else {
-            const parts = email.split('@')[0];
-            const formattedName = parts.charAt(0).toUpperCase() + parts.slice(1);
-            setUserName(formattedName);
-            setUserInitials(parts.substring(0, 2).toUpperCase());
-          }
+          if (email === 'admin@gmail.com') return JSON.stringify(['Administrador', 'AD']);
+          const parts = email.split('@')[0] || '';
+          const formattedName = parts ? parts.charAt(0).toUpperCase() + parts.slice(1) : 'Usuario';
+          const initials = parts.substring(0, 2).toUpperCase() || 'US';
+          return JSON.stringify([formattedName, initials]);
         }
+      } catch {
+        // ignore
       }
+
+      return JSON.stringify([fallbackName, fallbackInitials]);
+    },
+    () => JSON.stringify([fallbackName, fallbackInitials])
+  );
+
+  let userName = fallbackName;
+  let userInitials = fallbackInitials;
+  try {
+    const parsed = JSON.parse(storedUserSerialized) as unknown;
+    if (Array.isArray(parsed)) {
+      const maybeName = typeof parsed[0] === 'string' ? parsed[0] : undefined;
+      const maybeInitials = typeof parsed[1] === 'string' ? parsed[1] : undefined;
+      userName = maybeName || fallbackName;
+      userInitials = maybeInitials || fallbackInitials;
     }
-  }, [propUserName]);
+  } catch {
+    // ignore
+  }
 
   const navIcons = [
     { id: 'notifications', icon: FiBell, title: 'Notificaciones' },
