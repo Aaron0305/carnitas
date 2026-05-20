@@ -52,22 +52,30 @@ export class ProductosService {
         return data.map((p: any) => {
           const stockNum = parseFloat(p.stock);
           const isUnlimited = stockNum === -1;
-          const unit = p.unit || 'Pieza';
+          
+          let cat = 'Otro';
+          let unit = 'Pieza';
+          
+          if (p.category) {
+            if (p.category.includes('|')) {
+              const parts = p.category.split('|');
+              cat = parts[0] || 'Otro';
+              unit = parts[1] || 'Pieza';
+            } else {
+              // Legacy category column contains the unit (like "Pieza", "Kg", etc.)
+              unit = p.category;
+              // Auto-migrate legacy categories to real categories based on product name
+              const nameLower = p.name.toLowerCase();
+              if (nameLower.includes('taco')) cat = 'Taco';
+              else if (nameLower.includes('kilo') || nameLower.includes('kg') || nameLower.includes('carnita')) cat = 'Corte';
+              else if (nameLower.match(/agua|pepsi|7up|mirinda|corona|cafe|coca|refresco|jugo/)) cat = 'Bebida';
+              else cat = 'Otro';
+            }
+          }
           
           const { status, accent } = isUnlimited
             ? { status: 'Disponible' as const, accent: 'bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400' }
             : this.getStatusAndAccent(stockNum);
-
-          let cat = p.category || 'Otro';
-          
-          // Auto-migrate legacy categories (units) to real categories based on product name
-          if (['Pieza', 'Kg', 'Litro', 'Gramo', 'Paquete', 'Caja', 'Porción'].includes(cat)) {
-            const nameLower = p.name.toLowerCase();
-            if (nameLower.includes('taco')) cat = 'Taco';
-            else if (nameLower.includes('kilo') || nameLower.includes('kg') || nameLower.includes('carnita')) cat = 'Corte';
-            else if (nameLower.match(/agua|pepsi|7up|mirinda|corona|cafe|coca|refresco|jugo/)) cat = 'Bebida';
-            else cat = 'Otro';
-          }
 
           return {
             id: p.id,
@@ -107,12 +115,14 @@ export class ProductosService {
       const costNum = product.cost_price ? (typeof product.cost_price === 'number' ? product.cost_price : parseFloat(String(product.cost_price)) || 0) : 0;
       const gainNum = Math.max(0, priceNum - costNum);
 
+      // Combine category and unit into a single value, e.g., "Bebida|Pieza"
+      const combinedCategory = `${product.category || 'Otro'}|${product.unit || 'Pieza'}`;
+
       const { error } = await supabase
         .from('products')
         .insert([{
           name: product.name,
-          category: product.category,
-          unit: product.unit || 'Pieza',
+          category: combinedCategory,
           price: priceNum,
           stock: stockNum,
           status: status,
@@ -124,12 +134,17 @@ export class ProductosService {
       return true;
     } catch (err: any) {
       console.error('Error en ProductosService.create:', err);
-      // Check if it's the missing column error from Supabase
-      if (err?.code === '42703' && err?.message?.includes('unit')) {
-        alert('⚠️ ¡Te falta un paso! Necesitas ir a Supabase y crear la columna "unit" (tipo text) en la tabla "products". Revisa mis instrucciones anteriores.');
-      } else if (err?.message) {
-        alert(`Error al guardar: ${err.message}`);
+      if (err) {
+        console.log('Detalle de error Supabase:', {
+          code: err.code || null,
+          message: err.message || String(err),
+          details: err.details || null,
+          hint: err.hint || null
+        });
       }
+      
+      const userMsg = err?.message || 'Error desconocido';
+      alert(`⚠️ Error al registrar producto:\n${userMsg}`);
       return false;
     }
   }
