@@ -1,6 +1,7 @@
 'use client';
 
-import { CATEGORY_EMOJI } from '../types';
+import { MdOutlineDinnerDining } from 'react-icons/md';
+import { CATEGORY_ICON } from '../types';
 import type { CartItem, Product } from '../types';
 
 interface Props {
@@ -14,7 +15,7 @@ export default function ProductGrid({ products, cart, onAddToCart, searchQuery }
   if (products.length === 0) {
     return (
       <div className="bg-white dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-center flex flex-col items-center justify-center gap-2">
-        <span className="text-4xl">🌮</span>
+        <MdOutlineDinnerDining className="text-4xl text-slate-300" />
         <h3 className="text-sm font-bold text-slate-800 dark:text-white">Sin Productos</h3>
         <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
           {searchQuery ? 'No hay productos que coincidan con la búsqueda.' : 'Aún no tienes productos en esta categoría.'}
@@ -29,6 +30,9 @@ export default function ProductGrid({ products, cart, onAddToCart, searchQuery }
         const inCart = cart.find(i => i.id === product.id);
         const isUnlimited = parseFloat(String(product.stock)) === -1 || String(product.stock).includes('Ilimitado');
         const isOutOfStock = !isUnlimited && parseFloat(String(product.stock)) <= 0;
+
+        // Usa la categoría real del producto para el ícono (Taco, Bebida, Corte, etc.)
+        const Icon = CATEGORY_ICON[product.category] ?? MdOutlineDinnerDining;
 
         return (
           <div
@@ -51,7 +55,7 @@ export default function ProductGrid({ products, cart, onAddToCart, searchQuery }
               onClick={() => onAddToCart(product)}
               className="w-full text-left p-3 cursor-pointer touch-manipulation min-h-[80px]"
             >
-              <span className="text-2xl block mb-1">{CATEGORY_EMOJI[product.category] ?? '🌮'}</span>
+              <Icon className="text-2xl block mb-1" />
               <p className="text-sm font-bold text-slate-850 dark:text-white leading-tight">{product.name}</p>
               <div className="flex justify-between items-center mt-2">
                 <p className="text-base font-black text-[#FF6701]">

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { validateLogin } from '@/service/auth';
 import { motion } from 'framer-motion';
+import { GiTacos } from 'react-icons/gi';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiAlertTriangle, FiCheck, FiLoader } from 'react-icons/fi';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -139,9 +141,9 @@ export default function LoginPage() {
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ delay: 0.3, duration: 0.6, ease: 'easeOut' as const }}
-                className="text-5xl mb-2"
+                className="flex justify-center mb-2"
               >
-                🌮
+                <GiTacos className="text-5xl text-white drop-shadow-lg" />
               </motion.div>
 
               <motion.h1
@@ -189,8 +191,9 @@ export default function LoginPage() {
               className="mb-4 overflow-hidden"
             >
               {error && (
-                <div className="bg-[#FFE5E5] dark:bg-[#FF6701]/20 border-l-4 border-[#FF6701] text-[#CC3333] dark:text-[#FFA82F] px-3 py-2 rounded-lg font-bold text-xs">
-                  ⚠️ {error}
+                <div className="bg-[#FFE5E5] dark:bg-[#FF6701]/20 border-l-4 border-[#FF6701] text-[#CC3333] dark:text-[#FFA82F] px-3 py-2 rounded-lg font-bold text-xs flex items-center gap-2">
+                  <FiAlertTriangle className="flex-shrink-0" />
+                  {error}
                 </div>
               )}
             </motion.div>
@@ -198,8 +201,8 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email */}
               <motion.div variants={itemVariants}>
-                <label className="block text-xs font-black text-[#FF6701] dark:text-[#FFA82F] mb-2 uppercase tracking-wide">
-                  📧 Correo
+                <label className="block text-xs font-black text-[#FF6701] dark:text-[#FFA82F] mb-2 uppercase tracking-wide flex items-center gap-1.5">
+                  <FiMail size={12} /> Correo
                 </label>
                 <input
                   type="email"
@@ -213,8 +216,8 @@ export default function LoginPage() {
 
               {/* Password */}
               <motion.div variants={itemVariants}>
-                <label className="block text-xs font-black text-[#FF6701] dark:text-[#FFA82F] mb-2 uppercase tracking-wide">
-                  🔐 Contraseña
+                <label className="block text-xs font-black text-[#FF6701] dark:text-[#FFA82F] mb-2 uppercase tracking-wide flex items-center gap-1.5">
+                  <FiLock size={12} /> Contraseña
                 </label>
                 <div className="relative">
                   <input
@@ -230,9 +233,9 @@ export default function LoginPage() {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-lg cursor-pointer hover:opacity-70"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-lg cursor-pointer hover:opacity-70 text-slate-500 dark:text-slate-400"
                   >
-                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                    {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
                   </motion.button>
                 </div>
               </motion.div>
@@ -271,12 +274,12 @@ export default function LoginPage() {
                   {loading ? (
                     <>
                       <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity }}>
-                        ⏳
+                        <FiLoader size={16} />
                       </motion.span>
                       Iniciando...
                     </>
                   ) : (
-                    '✓ Iniciar Sesión'
+                    <><FiCheck size={16} /> Iniciar Sesión</>
                   )}
                 </span>
               </motion.button>

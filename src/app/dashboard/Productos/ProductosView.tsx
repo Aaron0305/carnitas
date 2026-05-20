@@ -4,18 +4,23 @@ import { useEffect, useState } from 'react';
 import {
   FiPackage, FiTrash2, FiPlus, FiAlertCircle,
   FiCheckCircle, FiX, FiDollarSign, FiTag,
-  FiLayers, FiBox, FiToggleLeft, FiHash
+  FiLayers, FiBox, FiToggleLeft,
+  FiAlertTriangle, FiCheck, FiRefreshCw, FiCoffee
 } from 'react-icons/fi';
+import { GiTacos, GiMeat, GiAvocado } from 'react-icons/gi';
+import { MdOutlineDinnerDining } from 'react-icons/md';
+import { LuCupSoda } from 'react-icons/lu';
+import type { ElementType } from 'react';
 import { ProductosService, Product } from '@/service/productos';
 
 // ─── Catálogo de categorías ────────────────────────────────────────────────
-const CATEGORIAS = [
-  { value: 'Taco', label: 'Taco', emoji: '🌮', desc: 'Tacos individuales por pieza' },
-  { value: 'Corte', label: 'Corte / Kg', emoji: '🥩', desc: 'Venta por kilogramo' },
-  { value: 'Bebida', label: 'Bebida', emoji: '🥤', desc: 'Refrescos, aguas, etc.' },
-  { value: 'Complemento', label: 'Complemento', emoji: '🫙', desc: 'Salsas, tortillas, extras' },
-  { value: 'Combo', label: 'Combo / Paquete', emoji: '📦', desc: 'Combos o paquetes especiales' },
-  { value: 'Otro', label: 'Otro', emoji: '🍽️', desc: 'Cualquier otro producto' },
+const CATEGORIAS: { value: string; label: string; Icon: ElementType; desc: string }[] = [
+  { value: 'Taco',        label: 'Taco',           Icon: GiTacos,              desc: 'Tacos individuales por pieza' },
+  { value: 'Corte',       label: 'Corte / Kg',     Icon: GiMeat,               desc: 'Venta por kilogramo' },
+  { value: 'Bebida',      label: 'Bebida',          Icon: LuCupSoda,            desc: 'Refrescos, aguas, etc.' },
+  { value: 'Complemento', label: 'Complemento',     Icon: GiAvocado,            desc: 'Salsas, tortillas, extras' },
+  { value: 'Combo',       label: 'Combo / Paquete', Icon: FiPackage,            desc: 'Combos o paquetes especiales' },
+  { value: 'Otro',        label: 'Otro',            Icon: MdOutlineDinnerDining,desc: 'Cualquier otro producto' },
 ];
 
 const UNIDADES = ['Pieza', 'Kg', 'Litro', 'Porción', 'Paquete', 'Gramo', 'Caja'];
@@ -33,18 +38,15 @@ interface ProductForm {
   price: string;
   costPrice: string;
   gain: string;
-  description: string;
   trackStock: boolean;
   stock: string;
   minStock: string;
-  sku: string;
 }
 
 const emptyForm = (): ProductForm => ({
   name: '', categoria: 'Taco', unidad: 'Pieza',
-  price: '', costPrice: '', gain: '', description: '',
+  price: '', costPrice: '', gain: '',
   trackStock: false, stock: '', minStock: '',
-  sku: '',
 });
 
 export default function ProductosView() {
@@ -101,7 +103,8 @@ export default function ProductosView() {
 
     const success = await ProductosService.create({
       name: form.name,
-      category: form.unidad,          // campo original del servicio
+      category: form.categoria,        // Tipo real: Taco, Bebida, Corte, etc.
+      unit: form.unidad,               // Unidad de venta: Pieza, Kg, Litro, etc.
       price: calculatedPrice,
       stock: form.trackStock ? parseFloat(form.stock) || 0 : -1,
       cost_price: cost
@@ -227,7 +230,7 @@ export default function ProductosView() {
             <thead>
               <tr className="border-b border-[#FF6701]/10 dark:border-slate-800 text-[10px] md:text-xs font-extrabold uppercase tracking-wider text-slate-400">
                 <th className="pb-4 pl-4 md:pl-6">Producto</th>
-                <th className="pb-4 hidden md:table-cell">Presentación</th>
+                <th className="pb-4 hidden md:table-cell">Categoría</th>
                 {isAdmin && <th className="pb-4 hidden lg:table-cell text-slate-450">P. Costo</th>}
                 {isAdmin && <th className="pb-4 hidden lg:table-cell text-emerald-500">Ganancia</th>}
                 <th className="pb-4">P. Venta</th>
@@ -244,7 +247,7 @@ export default function ProductosView() {
               ) : products.map(p => (
                 <tr key={p.id} className="text-xs md:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/20 transition-colors">
                   <td className="py-4 pl-4 md:pl-6 font-black text-slate-900 dark:text-white">{p.name}</td>
-                  <td className="py-4 hidden md:table-cell">{p.category}</td>
+                  <td className="py-4 hidden md:table-cell">{p.category} <span className="text-slate-400">· {p.unit}</span></td>
                   {isAdmin && <td className="py-4 hidden lg:table-cell text-slate-400 font-bold">${(p.cost_price || 0).toFixed(2)}</td>}
                   {isAdmin && (
                     <td className="py-4 hidden lg:table-cell font-black text-emerald-600 dark:text-emerald-400">
@@ -334,7 +337,7 @@ export default function ProductosView() {
                             : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-[#FF6701]/40'
                             }`}
                         >
-                          <span className="text-xl leading-none mt-0.5">{cat.emoji}</span>
+                          <cat.Icon className="text-xl leading-none mt-0.5" />
                           <div>
                             <p className={`text-xs font-bold leading-tight ${form.categoria === cat.value ? 'text-[#FF6701]' : 'text-slate-800 dark:text-white'}`}>{cat.label}</p>
                             <p className="text-[10px] text-slate-400 mt-0.5 leading-tight">{cat.desc}</p>
@@ -366,33 +369,6 @@ export default function ProductosView() {
                     </div>
                   </div>
 
-                  {/* Descripción */}
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">
-                      Descripción / Notas (opcional)
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={form.description}
-                      onChange={e => setField('description', e.target.value)}
-                      placeholder="Notas internas sobre este producto (proveedor, ingredientes, especificaciones…)"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#FF6701]/60 focus:bg-white dark:focus:bg-slate-800 transition-all resize-none"
-                    />
-                  </div>
-
-                  {/* SKU */}
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">
-                      <FiHash size={10} className="inline mr-1.5" />Código / SKU (opcional)
-                    </label>
-                    <input
-                      type="text"
-                      value={form.sku}
-                      onChange={e => setField('sku', e.target.value)}
-                      placeholder="Ej. TCO-001, BEB-CC600"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#FF6701]/60 transition-all"
-                    />
-                  </div>
                 </>
               )}
 
@@ -401,10 +377,10 @@ export default function ProductosView() {
                 <>
                   {/* Resumen del producto */}
                   <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#FF6701]/5 dark:bg-[#FF6701]/10 border border-[#FF6701]/20">
-                    <span className="text-2xl">{CATEGORIAS.find(c => c.value === form.categoria)?.emoji ?? '🍽️'}</span>
+                    {(() => { const Cat = CATEGORIAS.find(c => c.value === form.categoria); const CatIcon = Cat?.Icon ?? MdOutlineDinnerDining; return <CatIcon className="text-2xl" />; })()}
                     <div>
                       <p className="text-sm font-black text-slate-900 dark:text-white">{form.name}</p>
-                      <p className="text-[11px] text-slate-500">{form.categoria} · {form.unidad}{form.sku ? ` · SKU: ${form.sku}` : ''}</p>
+                      <p className="text-[11px] text-slate-500">{form.categoria} · {form.unidad}</p>
                     </div>
                   </div>
 
@@ -469,8 +445,8 @@ export default function ProductosView() {
                       }`}>
                       <FiDollarSign size={14} />
                       Margen de ganancia real: <span className="text-base font-black">{margin}%</span>
-                      {parseFloat(margin) < 20 && <span className="ml-auto text-[11px]">⚠️ Margen muy bajo</span>}
-                      {parseFloat(margin) >= 50 && <span className="ml-auto text-[11px]">✅ Excelente margen</span>}
+                      {parseFloat(margin) < 20 && <span className="ml-auto text-[11px] flex items-center gap-1"><FiAlertTriangle size={11} /> Margen muy bajo</span>}
+                      {parseFloat(margin) >= 50 && <span className="ml-auto text-[11px] flex items-center gap-1"><FiCheck size={11} /> Excelente margen</span>}
                     </div>
                   )}
 
@@ -557,7 +533,7 @@ export default function ProductosView() {
                   style={{ background: 'linear-gradient(135deg, #FF6701, #FFA82F)', flex: 2 }}
                 >
                   {submitting ? (
-                    <><span className="animate-spin">↻</span> Guardando…</>
+                    <><FiRefreshCw size={14} className="animate-spin" /> Guardando…</>
                   ) : (
                     <><FiCheckCircle size={15} /> Registrar Producto</>
                   )}
