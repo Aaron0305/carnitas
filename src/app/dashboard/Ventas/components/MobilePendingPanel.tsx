@@ -1,6 +1,6 @@
 'use client';
 
-import { FiClock, FiPlus, FiX, FiAlertCircle, FiCopy, FiTrash2 } from 'react-icons/fi';
+import { FiClock, FiPlus, FiX, FiAlertCircle, FiCopy, FiTrash2, FiPrinter } from 'react-icons/fi';
 import type { PendingOrder } from '../types';
 
 interface Props {
@@ -12,11 +12,12 @@ interface Props {
   onNewOrder: () => void;
   onDuplicate: (id: string) => void;
   onDelete: (id: string) => void;
+  onQuickPrint?: () => void;
 }
 
 export default function MobilePendingPanel({
   show, orders, activeOrderId, onClose, onSwitch,
-  onNewOrder, onDuplicate, onDelete,
+  onNewOrder, onDuplicate, onDelete, onQuickPrint,
 }: Props) {
   if (!show) return null;
 
@@ -32,6 +33,15 @@ export default function MobilePendingPanel({
             )}
           </h2>
           <div className="flex items-center gap-2">
+            {onQuickPrint && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onQuickPrint(); }}
+                className="text-[10px] text-slate-500 hover:text-[#FF6701] font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                title="Impresión Rápida de Tickets"
+              >
+                <FiPrinter size={12} /> Rápida
+              </button>
+            )}
             <button onClick={onNewOrder} className="text-xs font-bold text-[#FF6701] flex items-center gap-1 hover:underline cursor-pointer">
               <FiPlus size={14} /> Nueva
             </button>

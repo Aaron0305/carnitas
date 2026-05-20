@@ -524,9 +524,7 @@ export default function VentasView() {
             onNewOrder={createNewOrder}
             onQuickPrint={() => setShowQuickPrint(true)}
           />
-          {pendingCount === 0 && (
-            <RecentSales transactions={recentTransactions} loading={loading} />
-          )}
+          
         </div>
       </div>
 
@@ -547,6 +545,7 @@ export default function VentasView() {
         onNewOrder={createNewOrder}
         onDuplicate={duplicateOrder}
         onDelete={deletePendingOrder}
+        onQuickPrint={() => setShowQuickPrint(true)}
       />
 
       <MobileCartSheet
@@ -576,6 +575,10 @@ export default function VentasView() {
         isOpen={showQuickPrint}
         orders={pendingOrders}
         onClose={() => setShowQuickPrint(false)}
+        onOrdersCharged={(ids) => {
+          setPendingOrders(prev => prev.filter(o => !ids.includes(o.id)));
+        }}
+        onPrintComplete={() => loadData()}
       />
     </div>
   );
